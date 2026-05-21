@@ -1,15 +1,31 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { AppLayout } from '@/widgets/app-layout';
-import { EquipmentFilters } from '@/features/equipment-filter';
 import { MoveEquipmentModal } from '@/features/equipment-move';
 import { EquipmentRow, EquipmentCard, equipmentApi } from '@/entities/equipment';
-import { Button, Table, TableBody, TableHead, TableHeader, TableRow, EmptyState, Skeleton } from '@/shared/ui';
+import {
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+  EmptyState,
+  Skeleton,
+} from '@/shared/ui';
 import { Equipment } from '@/shared/types';
-import { Plus, Package, Filter } from 'lucide-react';
+import { Plus, Search, Filter, Download, Package } from 'lucide-react';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import { useIsDesktop } from '@/shared/hooks/useMediaQuery';
 import { authStore } from '@/features/auth';
+
+const ITEMS_PER_PAGE = 10;
 
 export default function EquipmentPage() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -20,7 +36,8 @@ export default function EquipmentPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [moveModalOpen, setMoveModalOpen] = useState(false);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+
   const debouncedSearch = useDebounce(search, 300);
   const isDesktop = useIsDesktop();
   const navigate = useNavigate();
@@ -45,7 +62,6 @@ export default function EquipmentPage() {
   useEffect(() => {
     let filtered = equipment;
 
-    // Apply search filter
     if (debouncedSearch) {
       filtered = filtered.filter((item) =>
         item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -54,20 +70,26 @@ export default function EquipmentPage() {
       );
     }
 
-    // Apply status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter((item) => item.status === statusFilter);
     }
 
-    // Apply type filter
     if (typeFilter !== 'all') {
-      filtered = filtered.filter((item) => 
+      filtered = filtered.filter((item) =>
         item.type.toLowerCase().includes(typeFilter.toLowerCase())
       );
     }
 
     setFilteredEquipment(filtered);
+    setCurrentPage(1);
   }, [debouncedSearch, statusFilter, typeFilter, equipment]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredEquipment.length / ITEMS_PER_PAGE));
+  const paginatedEquipment = filteredEquipment.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+  const pageNumbers = [1, 2, 3, 4];
 
   const handleEquipmentSelect = (eq: Equipment) => {
     setSelectedEquipment(eq);
@@ -75,45 +97,70 @@ export default function EquipmentPage() {
   };
 
   return (
-    <AppLayout 
-      title="Equipment Inventory" 
-      subtitle="View and manage all warehouse equipment"
-    >
-      <div className="space-y-4">
-        {/* Header with filters */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex-1">
-            <EquipmentFilters
-              search={search}
-              onSearchChange={setSearch}
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              typeFilter={typeFilter}
-              onTypeFilterChange={setTypeFilter}
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Row 1: Title + New Asset button */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">Equipment Inventory</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage and track all warehouse assets and their current status.
+            </p>
+          </div>
+          {userRole !== 'viewer' && (
+            <Button
+              className="hidden lg:flex bg-[#2563eb] hover:bg-[#1d4ed8] gap-2"
+              onClick={() => navigate('/equipment/new')}
+            >
+              <Plus className="w-4 h-4" />
+              New Asset
+            </Button>
+          )}
+        </div>
+
+        {/* Row 2: Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search assets by name, serial, or location..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
             />
           </div>
-          
-          {userRole !== 'viewer' && (
-            <>
-              {/* Desktop button */}
-              <Button
-                className="hidden lg:flex bg-[#2E74B5] hover:bg-[#245d91] gap-2"
-                onClick={() => navigate('/equipment/new')}
-              >
-                <Plus className="w-4 h-4" />
-                Add Equipment
-              </Button>
-
-              {/* Mobile FAB */}
-              <Button
-                className="lg:hidden fixed bottom-6 right-6 z-40 rounded-full h-14 w-14 shadow-lg bg-[#2E74B5] hover:bg-[#245d91]"
-                size="icon"
-                onClick={() => navigate('/equipment/new')}
-              >
-                <Plus className="w-6 h-6" />
-              </Button>
-            </>
-          )}
+          <div className="flex gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Status: All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Status: All</SelectItem>
+                <SelectItem value="in_stock">In Stock</SelectItem>
+                <SelectItem value="deployed">In Operation</SelectItem>
+                <SelectItem value="maintenance">In Repair</SelectItem>
+                <SelectItem value="decommissioned">Decommissioned</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[160px]">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="forklift">Forklift</SelectItem>
+                <SelectItem value="laptop">Laptop</SelectItem>
+                <SelectItem value="printer">Printer</SelectItem>
+                <SelectItem value="machine">Machine</SelectItem>
+                <SelectItem value="tool">Hand Tool</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+          </div>
         </div>
 
         {/* Equipment list */}
@@ -132,62 +179,83 @@ export default function EquipmentPage() {
               userRole !== 'viewer' ? (
                 <Button onClick={() => navigate('/equipment/new')}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Equipment
+                  New Asset
                 </Button>
               ) : undefined
             }
           />
-        ) : (
-          <>
-            {/* Desktop table view */}
-            {isDesktop ? (
-              <div className="bg-white rounded-lg border border-gray-200">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Equipment Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Serial Number</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Department</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredEquipment.map((item) => (
-                      <EquipmentRow 
-                        key={item.id} 
-                        equipment={item}
-                        onSelect={handleEquipmentSelect}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              /* Mobile card view */
-              <div className="grid grid-cols-1 gap-4">
-                {filteredEquipment.map((item) => (
-                  <EquipmentCard 
-                    key={item.id} 
+        ) : isDesktop ? (
+          <div className="border rounded-lg bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>Asset Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Serial Number</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedEquipment.map((item) => (
+                  <EquipmentRow
+                    key={item.id}
                     equipment={item}
                     onSelect={handleEquipmentSelect}
                   />
                 ))}
-              </div>
-            )}
-          </>
-        )}
+              </TableBody>
+            </Table>
 
-        {/* Results count */}
-        {!loading && filteredEquipment.length > 0 && (
-          <p className="text-sm text-gray-500 text-center">
-            Showing {filteredEquipment.length} of {equipment.length} items
-          </p>
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-4 py-3 border-t">
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
+                {Math.min(currentPage * ITEMS_PER_PAGE, filteredEquipment.length)} of{' '}
+                {filteredEquipment.length} assets
+              </p>
+              <div className="flex gap-1">
+                {pageNumbers.map((page) => (
+                  <Button
+                    key={page}
+                    variant={page === currentPage ? 'default' : 'outline'}
+                    size="sm"
+                    className={page === currentPage ? 'bg-[#2563eb] hover:bg-[#1d4ed8]' : ''}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Mobile card view */
+          <div className="grid grid-cols-1 gap-4">
+            {filteredEquipment.map((item) => (
+              <EquipmentCard
+                key={item.id}
+                equipment={item}
+                onSelect={handleEquipmentSelect}
+              />
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Move Equipment Modal */}
+      {/* Mobile FAB */}
+      {userRole !== 'viewer' && (
+        <Button
+          className="lg:hidden fixed bottom-6 right-6 z-40 rounded-full h-14 w-14 shadow-lg bg-[#2563eb] hover:bg-[#1d4ed8]"
+          size="icon"
+          onClick={() => navigate('/equipment/new')}
+        >
+          <Plus className="w-6 h-6" />
+        </Button>
+      )}
+
       <MoveEquipmentModal
         open={moveModalOpen}
         onOpenChange={setMoveModalOpen}

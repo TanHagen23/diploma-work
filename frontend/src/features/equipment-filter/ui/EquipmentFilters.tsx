@@ -40,7 +40,8 @@ export function EquipmentFilters({
         <SelectContent>
           <SelectItem value="all">All Statuses</SelectItem>
           <SelectItem value="in_stock">In Stock</SelectItem>
-          <SelectItem value="deployed">Deployed</SelectItem>
+          <SelectItem value="deployed">In Operation</SelectItem>
+          <SelectItem value="maintenance">In Repair</SelectItem>
           <SelectItem value="decommissioned">Decommissioned</SelectItem>
         </SelectContent>
       </Select>

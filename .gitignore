@@ -1,0 +1,27 @@
+# ===== OS / IDE =====
+.DS_Store
+.vscode/
+.idea/
+
+# ===== Logs =====
+*.log
+
+# ===== Root node_modules =====
+node_modules/
+
+# ===== Frontend (Vite/React) =====
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+frontend/.env.*
+
+# ===== Backend (Go) =====
+backend/bin/
+backend/*.exe
+backend/*.out
+
+# ===== Env files =====
+.env
+.env.*
+!.env.example

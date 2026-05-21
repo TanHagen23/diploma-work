@@ -17,11 +17,14 @@ const mockStats: DashboardStats = {
 
 export default function DashboardPage() {
   return (
-    <AppLayout 
-      title="Dashboard" 
-      subtitle="Overview of warehouse assets and operations"
-    >
+    <AppLayout>
       <div className="space-y-6">
+        {/* Page header */}
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Overview of warehouse assets and operations</p>
+        </div>
+
         {/* Stats Cards */}
         <StatsCards stats={mockStats} />
 

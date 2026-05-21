@@ -1,4 +1,4 @@
-export type EquipmentStatus = 'in_stock' | 'deployed' | 'decommissioned';
+export type EquipmentStatus = 'in_stock' | 'deployed' | 'decommissioned' | 'maintenance';
 export type UserRole = 'admin' | 'operator' | 'viewer';
 export type MovementStatus = 'completed' | 'in_progress';
 

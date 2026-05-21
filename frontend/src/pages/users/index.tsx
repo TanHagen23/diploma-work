@@ -36,13 +36,24 @@ export default function UsersPage() {
   );
 
   return (
-    <AppLayout 
-      title="User Directory" 
-      subtitle="Manage users and access permissions"
-    >
-      <div className="space-y-4">
-        {/* Header with search and actions */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Row 1: Title + Add User button */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">User Directory</h1>
+            <p className="text-muted-foreground mt-1">Manage users and access permissions</p>
+          </div>
+          {userRole === 'admin' && (
+            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] gap-2">
+              <Plus className="w-4 h-4" />
+              Add User
+            </Button>
+          )}
+        </div>
+
+        {/* Row 2: Search + actions */}
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -52,22 +63,15 @@ export default function UsersPage() {
               className="pl-10"
             />
           </div>
-          
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <Filter className="w-4 h-4" />
-              <span className="hidden lg:inline">Filter</span>
+              Filter
             </Button>
             <Button variant="outline" className="gap-2">
               <Download className="w-4 h-4" />
-              <span className="hidden lg:inline">Export</span>
+              Export
             </Button>
-            {userRole === 'admin' && (
-              <Button className="bg-[#2E74B5] hover:bg-[#245d91] gap-2">
-                <Plus className="w-4 h-4" />
-                <span className="hidden lg:inline">Add User</span>
-              </Button>
-            )}
           </div>
         </div>
 
@@ -84,7 +88,7 @@ export default function UsersPage() {
               <div className="bg-white rounded-lg border border-gray-200">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted/50">
                       <TableHead>User</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Department</TableHead>

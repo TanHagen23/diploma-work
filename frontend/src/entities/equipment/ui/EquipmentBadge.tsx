@@ -6,6 +6,10 @@ interface EquipmentBadgeProps {
 }
 
 const statusConfig: Record<EquipmentStatus, { label: string; className: string }> = {
+  active: {
+    label: 'Active',
+    className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
+  },
   in_stock: {
     label: 'In Stock',
     className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
@@ -26,6 +30,14 @@ const statusConfig: Record<EquipmentStatus, { label: string; className: string }
 
 export function EquipmentBadge({ status }: EquipmentBadgeProps) {
   const config = statusConfig[status];
+
+  if (!config) {
+    return (
+      <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-100">
+        {status ?? 'Unknown'}
+      </Badge>
+    );
+  }
 
   return (
     <Badge variant="secondary" className={config.className}>

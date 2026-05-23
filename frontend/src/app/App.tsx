@@ -8,18 +8,24 @@ import DecommissionPage from '@/pages/decommission';
 import ReportsPage from '@/pages/reports';
 import SettingsPage from '@/pages/settings';
 
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem('access');
+  if (!token) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/equipment" element={<EquipmentPage />} />
-        <Route path="/movements" element={<MovementsPage />} />
-        <Route path="/decommission" element={<DecommissionPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/users" element={<UsersPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+        <Route path="/equipment" element={<PrivateRoute><EquipmentPage /></PrivateRoute>} />
+        <Route path="/movements" element={<PrivateRoute><MovementsPage /></PrivateRoute>} />
+        <Route path="/decommission" element={<PrivateRoute><DecommissionPage /></PrivateRoute>} />
+        <Route path="/reports" element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
+        <Route path="/users" element={<PrivateRoute><UsersPage /></PrivateRoute>} />
+        <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

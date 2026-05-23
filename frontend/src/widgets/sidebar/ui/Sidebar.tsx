@@ -9,8 +9,6 @@ import {
   Users,
   Settings,
   Menu,
-  Moon,
-  Sun,
 } from 'lucide-react';
 import { ROUTES } from '@/shared/config/routes';
 import {
@@ -89,33 +87,6 @@ function SidebarContent({
   collapsed?: boolean;
   onClick?: () => void;
 }) {
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains('dark'),
-  );
-
-  const toggleDark = () => {
-    document.documentElement.classList.toggle('dark');
-    setIsDark((prev) => !prev);
-  };
-
-  const toggleButton = (
-    <button
-      onClick={toggleDark}
-      className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full',
-        'text-gray-400 hover:text-white hover:bg-white/5',
-        collapsed && 'justify-center px-2',
-      )}
-    >
-      {isDark ? (
-        <Sun className="w-5 h-5 flex-shrink-0" />
-      ) : (
-        <Moon className="w-5 h-5 flex-shrink-0" />
-      )}
-      {!collapsed && <span>Toggle Appearance</span>}
-    </button>
-  );
-
   return (
     <div className="flex flex-col h-full bg-[#1a1f2e]">
       {/* Logo */}
@@ -131,7 +102,7 @@ function SidebarContent({
         {!collapsed && (
           <div className="flex flex-col">
             <span className="text-white font-semibold text-sm">AssetManager</span>
-            <span className="text-gray-500 text-xs">Warehouse Admin</span>
+            <span className="text-gray-300 text-xs">Warehouse Admin</span>
           </div>
         )}
       </div>
@@ -160,19 +131,6 @@ function SidebarContent({
         </TooltipProvider>
       </nav>
 
-      {/* Bottom: Toggle Appearance */}
-      <div className={cn('px-3 py-4 border-t border-white/10', collapsed && 'px-2')}>
-        <TooltipProvider delayDuration={0}>
-          {collapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>{toggleButton}</TooltipTrigger>
-              <TooltipContent side="right">Toggle Appearance</TooltipContent>
-            </Tooltip>
-          ) : (
-            toggleButton
-          )}
-        </TooltipProvider>
-      </div>
     </div>
   );
 }

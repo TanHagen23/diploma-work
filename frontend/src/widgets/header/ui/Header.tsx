@@ -1,4 +1,5 @@
-import { Bell, Search, LogOut, User, Settings } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, Search, LogOut, User, Settings, Sun, Moon } from 'lucide-react';
 import {
   Button,
   DropdownMenu,
@@ -17,37 +18,55 @@ import { ROUTES } from '@/shared/config/routes';
 
 export function Header() {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains('dark'),
+  );
 
   const handleLogout = () => {
     authStore.logout();
     navigate(ROUTES.LOGIN);
   };
 
+  const toggleDark = () => {
+    document.documentElement.classList.toggle('dark');
+    setIsDark((prev) => !prev);
+  };
+
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100">
+    <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#1e293b] border-b border-gray-100 dark:border-[#334155]">
       {/* Search */}
       <div className="relative w-full max-w-md ml-0 md:ml-4 lg:ml-0">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-[#94a3b8]" />
         <Input
           type="text"
           placeholder="Search equipment, movements, or users..."
-          className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
+          className="pl-10 bg-gray-50 dark:bg-[#0f172a] border-gray-200 dark:border-[#334155] focus:bg-white dark:focus:bg-[#1e293b] dark:text-[#f1f5f9] dark:placeholder-[#94a3b8]"
         />
       </div>
 
-      {/* Right — Notifications & User */}
+      {/* Right — Theme toggle, Notifications & User */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="relative text-gray-500 hover:text-gray-700">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleDark}
+          className="text-gray-500 dark:text-[#94a3b8] hover:text-gray-700 dark:hover:text-[#f1f5f9]"
+          title="Toggle theme"
+        >
+          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+
+        <Button variant="ghost" size="icon" className="relative text-gray-500 dark:text-[#94a3b8] hover:text-gray-700 dark:hover:text-[#f1f5f9]">
           <Bell className="h-5 w-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-[#334155] cursor-pointer hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900">Administrator</p>
-                <p className="text-xs text-gray-500">Super Admin</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-[#f1f5f9]">Administrator</p>
+                <p className="text-xs text-gray-500 dark:text-[#94a3b8]">Super Admin</p>
               </div>
               <Avatar className="h-9 w-9">
                 <AvatarFallback className="bg-[#2E74B5] text-white text-sm font-semibold">

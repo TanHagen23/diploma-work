@@ -1,4 +1,5 @@
 import { User } from '@/shared/types';
+import { authApi } from '@/shared/api/auth';
 
 class AuthStore {
   private currentUser: User | null = null;
@@ -10,38 +11,17 @@ class AuthStore {
   }
 
   private notify() {
-    this.listeners.forEach(listener => listener(this.currentUser));
+    this.listeners.forEach((listener) => listener(this.currentUser));
   }
 
-  login(username: string, password: string): Promise<User> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (username && password) {
-          const user: User = {
-            id: 1,
-            fullName: 'John Doe',
-            login: username,
-            email: 'john@figma.com',
-            role: 'admin',
-            department: 'IT',
-            lastLogin: new Date().toISOString(),
-          };
-          this.currentUser = user;
-          localStorage.setItem('auth_token', 'mock_token_' + Date.now());
-          localStorage.setItem('user_role', user.role);
-          this.notify();
-          resolve(user);
-        } else {
-          reject(new Error('Invalid credentials'));
-        }
-      }, 800);
-    });
+  async login(username: string, password: string): Promise<void> {
+    await authApi.login(username, password);
+    this.notify();
   }
 
   logout() {
     this.currentUser = null;
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_role');
+    authApi.logout();
     this.notify();
   }
 
@@ -50,11 +30,11 @@ class AuthStore {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
+    return !!localStorage.getItem('access');
   }
 
   getUserRole(): 'admin' | 'operator' | 'viewer' {
-    return (localStorage.getItem('user_role') as any) || 'viewer';
+    return (localStorage.getItem('user_role') as 'admin' | 'operator' | 'viewer') || 'viewer';
   }
 }
 

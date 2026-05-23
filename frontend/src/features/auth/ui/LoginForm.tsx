@@ -27,7 +27,7 @@ export function LoginForm() {
       toast.success('Login successful!');
       navigate(ROUTES.DASHBOARD);
     } catch {
-      toast.error('Invalid credentials');
+      toast.error('Неверный логин или пароль');
     } finally {
       setIsLoading(false);
     }

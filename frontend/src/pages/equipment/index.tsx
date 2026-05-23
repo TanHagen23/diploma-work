@@ -31,6 +31,7 @@ export default function EquipmentPage() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -43,19 +44,22 @@ export default function EquipmentPage() {
   const navigate = useNavigate();
   const userRole = authStore.getUserRole();
 
-  useEffect(() => {
-    const fetchEquipment = async () => {
-      try {
-        const data = await equipmentApi.getAll();
-        setEquipment(data);
-        setFilteredEquipment(data);
-      } catch (error) {
-        console.error('Failed to fetch equipment:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchEquipment = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await equipmentApi.getAll();
+      setEquipment(data);
+      setFilteredEquipment(data);
+    } catch (err) {
+      console.error('Failed to fetch equipment:', err);
+      setError('Не удалось загрузить данные. Проверьте соединение с сервером.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchEquipment();
   }, []);
 
@@ -84,12 +88,12 @@ export default function EquipmentPage() {
     setCurrentPage(1);
   }, [debouncedSearch, statusFilter, typeFilter, equipment]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredEquipment.length / ITEMS_PER_PAGE));
+  const totalPages = Math.ceil(filteredEquipment.length / ITEMS_PER_PAGE) || 1;
   const paginatedEquipment = filteredEquipment.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
-  const pageNumbers = [1, 2, 3, 4];
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   const handleEquipmentSelect = (eq: Equipment) => {
     setSelectedEquipment(eq);
@@ -170,6 +174,18 @@ export default function EquipmentPage() {
               <Skeleton key={i} className="h-16 w-full" />
             ))}
           </div>
+        ) : error ? (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+            <p className="text-sm text-destructive font-medium">{error}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={fetchEquipment}
+            >
+              Повторить
+            </Button>
+          </div>
         ) : filteredEquipment.length === 0 ? (
           <EmptyState
             icon={Package}
@@ -216,19 +232,21 @@ export default function EquipmentPage() {
                 {Math.min(currentPage * ITEMS_PER_PAGE, filteredEquipment.length)} of{' '}
                 {filteredEquipment.length} assets
               </p>
-              <div className="flex gap-1">
-                {pageNumbers.map((page) => (
-                  <Button
-                    key={page}
-                    variant={page === currentPage ? 'default' : 'outline'}
-                    size="sm"
-                    className={page === currentPage ? 'bg-[#2563eb] hover:bg-[#1d4ed8]' : ''}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </div>
+              {totalPages > 1 && (
+                <div className="flex gap-1">
+                  {pageNumbers.map((page) => (
+                    <Button
+                      key={page}
+                      variant={page === currentPage ? 'default' : 'outline'}
+                      size="sm"
+                      className={page === currentPage ? 'bg-[#2563eb] hover:bg-[#1d4ed8]' : ''}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : (

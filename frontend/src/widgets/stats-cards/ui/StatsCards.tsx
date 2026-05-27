@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/shared/ui';
-import { TrendingUp, TrendingDown, Monitor, TrendingUpIcon, Package, FileText } from 'lucide-react';
+import { TrendingUp, TrendingDown, Monitor, Wrench, Package, FileText } from 'lucide-react';
 import { DashboardStats } from '@/shared/types';
 
 interface StatsCardsProps {
@@ -9,7 +9,7 @@ interface StatsCardsProps {
 export function StatsCards({ stats }: StatsCardsProps) {
   const cards = [
     {
-      label: 'Total Equipment',
+      label: 'Всего оборудования',
       value: stats.totalEquipment.toLocaleString(),
       change: stats.totalEquipmentChange,
       isPositive: stats.totalEquipmentChange.startsWith('+'),
@@ -18,25 +18,25 @@ export function StatsCards({ stats }: StatsCardsProps) {
       iconBg: 'bg-blue-50',
     },
     {
-      label: 'In Operation',
-      value: stats.deployed.toLocaleString(),
-      change: stats.deployedChange,
-      isPositive: stats.deployedChange.startsWith('+'),
-      icon: TrendingUpIcon,
+      label: 'Активно',
+      value: stats.active.toLocaleString(),
+      change: stats.activeChange,
+      isPositive: stats.activeChange.startsWith('+'),
+      icon: Package,
       iconColor: 'text-emerald-600',
       iconBg: 'bg-emerald-50',
     },
     {
-      label: 'In Stock',
-      value: stats.inStock.toLocaleString(),
-      change: stats.inStockChange,
-      isPositive: stats.inStockChange.startsWith('+'),
-      icon: Package,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-50',
+      label: 'На обслуживании',
+      value: stats.maintenance.toLocaleString(),
+      change: stats.maintenanceChange,
+      isPositive: stats.maintenanceChange.startsWith('+'),
+      icon: Wrench,
+      iconColor: 'text-amber-600',
+      iconBg: 'bg-amber-50',
     },
     {
-      label: 'Decommissioned',
+      label: 'Списано',
       value: stats.decommissioned.toLocaleString(),
       change: stats.decommissionedChange,
       isPositive: false,
@@ -75,7 +75,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
               ) : (
                 <TrendingDown className="w-3 h-3 text-red-500 mr-1" />
               )}
-              <span>vs last week</span>
+              <span>текущие данные из БД</span>
             </div>
           </CardContent>
         </Card>

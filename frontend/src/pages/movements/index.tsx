@@ -18,159 +18,208 @@ import {
   TableRow,
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  Skeleton,
 } from '@/shared/ui';
-import { movementApi } from '@/entities/movement';
-import { Movement } from '@/shared/types';
-import { Search, Plus, ArrowRightLeft, Info, Package } from 'lucide-react';
+import { movementsApi, CreateMovementPayload } from '@/shared/api/movements';
+import { equipmentApi } from '@/shared/api/equipment';
+import { Movement, Equipment } from '@/shared/types';
+import { Search, Plus, ArrowRightLeft, Package, Info } from 'lucide-react';
+import { toast } from 'sonner';
 
-const statusColors: Record<string, string> = {
-  completed: 'bg-emerald-100 text-emerald-700',
-  in_progress: 'bg-amber-100 text-amber-700',
-  pending: 'bg-slate-100 text-slate-700',
+const LOCATIONS = ['Склад А', 'Склад Б', 'Офис 1', 'Офис 2', 'Серверная'];
+
+const EMPTY_FORM: CreateMovementPayload = {
+  equipment: 0,
+  from_location: '',
+  to_location: '',
+  responsible_person: '',
+  movement_date: new Date().toISOString().split('T')[0],
+  reason: '',
+  notes: '',
 };
-
-const statusLabels: Record<string, string> = {
-  completed: 'Completed',
-  in_progress: 'In Progress',
-  pending: 'Pending',
-};
-
-const mockLocations = [
-  'Warehouse A',
-  'Warehouse B',
-  'Building A',
-  'Building B',
-  'Building C',
-  'Storage',
-  'IT Stock',
-];
-
-const mockPersonnel = [
-  'John Doe',
-  'Jane Smith',
-  'Michael Wilson',
-  'Emily Johnson',
-  'Alex Rivera',
-];
 
 export default function MovementsPage() {
   const [movements, setMovements] = useState<Movement[]>([]);
+  const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [form, setForm] = useState<CreateMovementPayload>(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
-    movementApi.getAll().then((data) => {
-      setMovements(data);
-      setLoading(false);
-    });
+    Promise.all([movementsApi.getMovements(), equipmentApi.getEquipment()])
+      .then(([mvs, eqs]) => {
+        setMovements(mvs);
+        setEquipmentList(eqs.filter((e) => e.status !== 'decommissioned'));
+      })
+      .catch(() => toast.error('Ошибка загрузки данных'))
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = movements.filter((m) =>
-    m.equipment.name.toLowerCase().includes(search.toLowerCase()),
+    m.equipmentName.toLowerCase().includes(search.toLowerCase()) ||
+    m.from.toLowerCase().includes(search.toLowerCase()) ||
+    m.to.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const setField = <K extends keyof CreateMovementPayload>(key: K, value: CreateMovementPayload[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleSubmit = async () => {
+    if (!form.equipment || !form.to_location || !form.responsible_person || !form.reason) {
+      toast.error('Заполните все обязательные поля');
+      return;
+    }
+    setSaving(true);
+    try {
+      const created = await movementsApi.createMovement(form);
+      setMovements((prev) => [created, ...prev]);
+      setDialogOpen(false);
+      setForm(EMPTY_FORM);
+      toast.success('Перемещение зарегистрировано');
+    } catch {
+      toast.error('Ошибка при сохранении');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const selectedEquipment = equipmentList.find((e) => e.id === form.equipment);
 
   return (
     <AppLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Equipment Movements</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Перемещения оборудования</h1>
             <p className="text-muted-foreground mt-1">
-              Track and manage asset transfers between locations.
+              Учёт перемещений активов между локациями.
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">
                 <Plus className="h-4 w-4 mr-2" />
-                New Movement
+                Новое перемещение
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[520px]">
               <DialogHeader>
-                <DialogTitle>Move Equipment</DialogTitle>
-                <DialogDescription className="flex items-start gap-2 mt-2 p-3 bg-blue-50 rounded-lg text-blue-700">
-                  <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>
-                    Every movement is automatically logged in the audit history. Ensure the{' '}
-                    <strong>Responsible Person</strong> is informed of the transfer details.
-                  </span>
-                </DialogDescription>
+                <DialogTitle>Зарегистрировать перемещение</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Select Equipment</Label>
-                  <Select>
+
+              <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg text-blue-700 dark:text-blue-400 text-sm mt-2">
+                <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>Каждое перемещение фиксируется в журнале аудита автоматически.</span>
+              </div>
+
+              <div className="space-y-4 py-2">
+                <div className="space-y-1.5">
+                  <Label>Оборудование <span className="text-red-500">*</span></Label>
+                  <Select
+                    value={form.equipment ? String(form.equipment) : ''}
+                    onValueChange={(v) => {
+                      const eq = equipmentList.find((e) => e.id === Number(v));
+                      setField('equipment', Number(v));
+                      setField('from_location', eq?.location ?? '');
+                    }}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select equipment" />
+                      <SelectValue placeholder="Выберите оборудование" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">EQ-4452 - Electric Forklift C203</SelectItem>
-                      <SelectItem value="2">DL-99123 - Dell Latitude E7</SelectItem>
-                      <SelectItem value="5">IP-87654 - Industrial Printer X2</SelectItem>
+                      {equipmentList.map((eq) => (
+                        <SelectItem key={eq.id} value={String(eq.id)}>
+                          {eq.serialNumber} — {eq.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>From Location</Label>
-                    <Input value="Harbor Site A" disabled className="bg-muted" />
+                  <div className="space-y-1.5">
+                    <Label>Откуда</Label>
+                    <Input
+                      value={selectedEquipment?.location ?? form.from_location}
+                      disabled
+                      className="bg-muted"
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label>To Location</Label>
-                    <Select>
+                  <div className="space-y-1.5">
+                    <Label>Куда <span className="text-red-500">*</span></Label>
+                    <Select value={form.to_location} onValueChange={(v) => setField('to_location', v)}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Site" />
+                        <SelectValue placeholder="Выберите локацию" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockLocations.map((loc) => (
-                          <SelectItem key={loc} value={loc}>
-                            {loc}
-                          </SelectItem>
+                        {LOCATIONS.map((loc) => (
+                          <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Date of Transfer</Label>
-                    <Input type="date" />
+                  <div className="space-y-1.5">
+                    <Label>Дата перемещения</Label>
+                    <Input
+                      type="date"
+                      value={form.movement_date}
+                      onChange={(e) => setField('movement_date', e.target.value)}
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Responsible Person</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose Personnel" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockPersonnel.map((person) => (
-                          <SelectItem key={person} value={person}>
-                            {person}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-1.5">
+                    <Label>Ответственное лицо <span className="text-red-500">*</span></Label>
+                    <Input
+                      value={form.responsible_person}
+                      onChange={(e) => setField('responsible_person', e.target.value)}
+                      placeholder="Иванов А.П."
+                    />
                   </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Причина <span className="text-red-500">*</span></Label>
+                  <Input
+                    value={form.reason}
+                    onChange={(e) => setField('reason', e.target.value)}
+                    placeholder="Выдача сотруднику, ремонт и т.д."
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Примечания</Label>
+                  <Input
+                    value={form.notes ?? ''}
+                    onChange={(e) => setField('notes', e.target.value)}
+                    placeholder="Дополнительная информация"
+                  />
                 </div>
               </div>
+
               <DialogFooter>
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancel
+                <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
+                  Отмена
                 </Button>
                 <Button
                   className="bg-[#2563eb] hover:bg-[#1d4ed8]"
-                  onClick={() => setDialogOpen(false)}
+                  onClick={handleSubmit}
+                  disabled={saving}
                 >
                   <ArrowRightLeft className="h-4 w-4 mr-2" />
-                  Confirm Movement
+                  {saving ? 'Сохранение...' : 'Зарегистрировать'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -180,7 +229,7 @@ export default function MovementsPage() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search movements..."
+            placeholder="Поиск по оборудованию или локации..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -188,35 +237,41 @@ export default function MovementsPage() {
         </div>
 
         {loading ? (
-          <div className="text-sm text-muted-foreground">Loading...</div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+          </div>
         ) : (
           <div className="border rounded-lg bg-card">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-12"></TableHead>
-                  <TableHead>Asset</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Responsible</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="w-12" />
+                  <TableHead>Оборудование</TableHead>
+                  <TableHead>Откуда</TableHead>
+                  <TableHead>Куда</TableHead>
+                  <TableHead>Дата</TableHead>
+                  <TableHead>Ответственный</TableHead>
+                  <TableHead>Причина</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((movement) => (
+                {paginated.length === 0 ? (
+                  <TableRow>
+                    <td colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                      Перемещений не найдено
+                    </td>
+                  </TableRow>
+                ) : paginated.map((movement) => (
                   <TableRow key={movement.id} className="hover:bg-muted/30">
                     <TableCell>
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                        <Package className="h-5 w-5 text-slate-500" />
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center">
+                        <Package className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{movement.equipment.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {movement.equipment.serialNumber}
-                        </p>
+                        <p className="font-medium">{movement.equipmentName}</p>
+                        <p className="text-sm text-muted-foreground">{movement.equipment.serialNumber}</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{movement.from}</TableCell>
@@ -224,8 +279,8 @@ export default function MovementsPage() {
                     <TableCell className="text-muted-foreground">{movement.date}</TableCell>
                     <TableCell className="text-muted-foreground">{movement.operator}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={statusColors[movement.status]}>
-                        {statusLabels[movement.status]}
+                      <Badge variant="secondary" className="bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 text-xs">
+                        {movement.reason}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -234,21 +289,23 @@ export default function MovementsPage() {
             </Table>
             <div className="flex items-center justify-between px-4 py-3 border-t">
               <p className="text-sm text-muted-foreground">
-                Showing 1 to {filtered.length} of {movements.length} movements
+                Показано {filtered.length} из {movements.length}
               </p>
-              <div className="flex gap-1">
-                {[1, 2, 3].map((page) => (
-                  <Button
-                    key={page}
-                    variant={page === currentPage ? 'default' : 'outline'}
-                    size="sm"
-                    className={page === currentPage ? 'bg-[#2563eb]' : ''}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </div>
+              {totalPages > 1 && (
+                <div className="flex gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={page === currentPage ? 'default' : 'outline'}
+                      size="sm"
+                      className={page === currentPage ? 'bg-[#2563eb]' : ''}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -1,5 +1,5 @@
 import { equipmentApi as sharedEquipmentApi } from '@/shared/api/equipment';
-import { Equipment } from '@/shared/types';
+import { Equipment, EquipmentPayload } from '@/shared/types';
 
 export const equipmentApi = {
   getAll: (): Promise<Equipment[]> => sharedEquipmentApi.getEquipment(),
@@ -9,10 +9,10 @@ export const equipmentApi = {
     return list.find((eq) => eq.id === id);
   },
 
-  create: (data: Omit<Equipment, 'id'>): Promise<Equipment> =>
+  create: (data: EquipmentPayload): Promise<Equipment> =>
     sharedEquipmentApi.createEquipment(data),
 
-  update: (id: number, data: Partial<Equipment>): Promise<Equipment> =>
+  update: (id: number, data: Partial<EquipmentPayload>): Promise<Equipment> =>
     sharedEquipmentApi.updateEquipment(id, data),
 
   delete: (id: number): Promise<void> => sharedEquipmentApi.deleteEquipment(id),

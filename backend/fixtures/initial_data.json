@@ -1,0 +1,445 @@
+[
+  {
+    "model": "equipment.equipment",
+    "pk": 1,
+    "fields": {
+      "name": "Dell Latitude 7490",
+      "inventory_number": "INV-001",
+      "category": "Техника",
+      "status": "active",
+      "location": "Офис 1",
+      "responsible_person": "Иванов А.П.",
+      "purchase_date": "2022-03-15",
+      "purchase_price": "75000.00",
+      "notes": "",
+      "created_at": "2022-03-16T09:00:00Z",
+      "updated_at": "2022-03-16T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 2,
+    "fields": {
+      "name": "HP EliteBook 840 G8",
+      "inventory_number": "INV-002",
+      "category": "Техника",
+      "status": "active",
+      "location": "Офис 2",
+      "responsible_person": "Петрова М.С.",
+      "purchase_date": "2022-06-20",
+      "purchase_price": "85000.00",
+      "notes": "",
+      "created_at": "2022-06-21T09:00:00Z",
+      "updated_at": "2022-06-21T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 3,
+    "fields": {
+      "name": "MacBook Pro M2",
+      "inventory_number": "INV-003",
+      "category": "Техника",
+      "status": "maintenance",
+      "location": "Серверная",
+      "responsible_person": "Сидоров К.В.",
+      "purchase_date": "2023-01-10",
+      "purchase_price": "180000.00",
+      "notes": "Отправлен в ремонт — замена аккумулятора",
+      "created_at": "2023-01-11T09:00:00Z",
+      "updated_at": "2024-02-01T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 4,
+    "fields": {
+      "name": "Canon imageCLASS MF445dw",
+      "inventory_number": "INV-004",
+      "category": "Оргтехника",
+      "status": "active",
+      "location": "Офис 1",
+      "responsible_person": "Козлова Е.И.",
+      "purchase_date": "2021-09-05",
+      "purchase_price": "35000.00",
+      "notes": "",
+      "created_at": "2021-09-06T09:00:00Z",
+      "updated_at": "2021-09-06T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 5,
+    "fields": {
+      "name": "HP LaserJet Pro M404dn",
+      "inventory_number": "INV-005",
+      "category": "Оргтехника",
+      "status": "active",
+      "location": "Офис 2",
+      "responsible_person": "Новиков Д.Р.",
+      "purchase_date": "2021-11-12",
+      "purchase_price": "28000.00",
+      "notes": "",
+      "created_at": "2021-11-13T09:00:00Z",
+      "updated_at": "2021-11-13T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 6,
+    "fields": {
+      "name": "Epson EB-X51 Проектор",
+      "inventory_number": "INV-006",
+      "category": "Оргтехника",
+      "status": "active",
+      "location": "Офис 1",
+      "responsible_person": "Смирнова О.В.",
+      "purchase_date": "2020-04-22",
+      "purchase_price": "42000.00",
+      "notes": "",
+      "created_at": "2020-04-23T09:00:00Z",
+      "updated_at": "2020-04-23T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 7,
+    "fields": {
+      "name": "Honeywell Voyager 1450g Сканер",
+      "inventory_number": "INV-007",
+      "category": "Оргтехника",
+      "status": "active",
+      "location": "Склад А",
+      "responsible_person": "Федоров Н.А.",
+      "purchase_date": "2021-07-18",
+      "purchase_price": "15000.00",
+      "notes": "",
+      "created_at": "2021-07-19T09:00:00Z",
+      "updated_at": "2021-07-19T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 8,
+    "fields": {
+      "name": "Zebra DS2208 Сканер",
+      "inventory_number": "INV-008",
+      "category": "Оргтехника",
+      "status": "maintenance",
+      "location": "Склад Б",
+      "responsible_person": "Белова Т.М.",
+      "purchase_date": "2021-08-30",
+      "purchase_price": "12000.00",
+      "notes": "Замена сканирующего элемента",
+      "created_at": "2021-08-31T09:00:00Z",
+      "updated_at": "2024-01-15T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 9,
+    "fields": {
+      "name": "Dell PowerEdge R740 Сервер",
+      "inventory_number": "INV-009",
+      "category": "Техника",
+      "status": "active",
+      "location": "Серверная",
+      "responsible_person": "Морозов В.Е.",
+      "purchase_date": "2020-12-01",
+      "purchase_price": "450000.00",
+      "notes": "Основной сервер приложений",
+      "created_at": "2020-12-02T09:00:00Z",
+      "updated_at": "2020-12-02T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 10,
+    "fields": {
+      "name": "HP ProLiant DL380 Gen10",
+      "inventory_number": "INV-010",
+      "category": "Техника",
+      "status": "active",
+      "location": "Серверная",
+      "responsible_person": "Волков А.С.",
+      "purchase_date": "2021-03-15",
+      "purchase_price": "380000.00",
+      "notes": "Резервный сервер",
+      "created_at": "2021-03-16T09:00:00Z",
+      "updated_at": "2021-03-16T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 11,
+    "fields": {
+      "name": "Dell UltraSharp U2422H Монитор",
+      "inventory_number": "INV-011",
+      "category": "Техника",
+      "status": "active",
+      "location": "Офис 1",
+      "responsible_person": "Иванов А.П.",
+      "purchase_date": "2022-05-10",
+      "purchase_price": "28000.00",
+      "notes": "",
+      "created_at": "2022-05-11T09:00:00Z",
+      "updated_at": "2022-05-11T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 12,
+    "fields": {
+      "name": "Samsung S27A600 Монитор",
+      "inventory_number": "INV-012",
+      "category": "Техника",
+      "status": "active",
+      "location": "Офис 2",
+      "responsible_person": "Петрова М.С.",
+      "purchase_date": "2022-07-14",
+      "purchase_price": "25000.00",
+      "notes": "",
+      "created_at": "2022-07-15T09:00:00Z",
+      "updated_at": "2022-07-15T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 13,
+    "fields": {
+      "name": "Yealink T48U IP-телефон",
+      "inventory_number": "INV-013",
+      "category": "Техника",
+      "status": "active",
+      "location": "Офис 1",
+      "responsible_person": "Козлова Е.И.",
+      "purchase_date": "2020-10-05",
+      "purchase_price": "18000.00",
+      "notes": "",
+      "created_at": "2020-10-06T09:00:00Z",
+      "updated_at": "2020-10-06T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 14,
+    "fields": {
+      "name": "Cisco IP Phone CP-7945G",
+      "inventory_number": "INV-014",
+      "category": "Техника",
+      "status": "decommissioned",
+      "location": "Склад А",
+      "responsible_person": "Новиков Д.Р.",
+      "purchase_date": "2018-06-15",
+      "purchase_price": "22000.00",
+      "notes": "Устаревшая модель, снята с производства",
+      "created_at": "2018-06-16T09:00:00Z",
+      "updated_at": "2024-01-20T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 15,
+    "fields": {
+      "name": "APC Smart-UPS 1500",
+      "inventory_number": "INV-015",
+      "category": "Сетевое оборудование",
+      "status": "active",
+      "location": "Серверная",
+      "responsible_person": "Морозов В.Е.",
+      "purchase_date": "2020-11-20",
+      "purchase_price": "55000.00",
+      "notes": "",
+      "created_at": "2020-11-21T09:00:00Z",
+      "updated_at": "2020-11-21T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 16,
+    "fields": {
+      "name": "Cisco Catalyst 2960-X Коммутатор",
+      "inventory_number": "INV-016",
+      "category": "Сетевое оборудование",
+      "status": "maintenance",
+      "location": "Серверная",
+      "responsible_person": "Волков А.С.",
+      "purchase_date": "2019-08-10",
+      "purchase_price": "95000.00",
+      "notes": "Замена прошивки и диагностика портов",
+      "created_at": "2019-08-11T09:00:00Z",
+      "updated_at": "2024-03-01T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 17,
+    "fields": {
+      "name": "Xerox WorkCentre 5335 МФУ",
+      "inventory_number": "INV-017",
+      "category": "Оргтехника",
+      "status": "decommissioned",
+      "location": "Склад Б",
+      "responsible_person": "Белова Т.М.",
+      "purchase_date": "2017-04-15",
+      "purchase_price": "68000.00",
+      "notes": "Выработал ресурс, замена нецелесообразна",
+      "created_at": "2017-04-16T09:00:00Z",
+      "updated_at": "2024-02-10T09:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 18,
+    "fields": {
+      "name": "Lexmark MS510dn Принтер",
+      "inventory_number": "INV-018",
+      "category": "Оргтехника",
+      "status": "decommissioned",
+      "location": "Склад А",
+      "responsible_person": "Федоров Н.А.",
+      "purchase_date": "2016-11-30",
+      "purchase_price": "32000.00",
+      "notes": "Неисправен, ремонт нецелесообразен",
+      "created_at": "2016-12-01T09:00:00Z",
+      "updated_at": "2024-03-05T09:00:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 1,
+    "fields": {
+      "equipment": 1,
+      "from_location": "Склад А",
+      "to_location": "Офис 1",
+      "responsible_person": "Иванов А.П.",
+      "movement_date": "2024-01-10",
+      "reason": "Выдача сотруднику",
+      "notes": "",
+      "created_at": "2024-01-10T10:00:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 2,
+    "fields": {
+      "equipment": 4,
+      "from_location": "Склад Б",
+      "to_location": "Офис 1",
+      "responsible_person": "Козлова Е.И.",
+      "movement_date": "2024-01-15",
+      "reason": "Установка в офис",
+      "notes": "Подключён к сети",
+      "created_at": "2024-01-15T11:00:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 3,
+    "fields": {
+      "equipment": 7,
+      "from_location": "Склад Б",
+      "to_location": "Склад А",
+      "responsible_person": "Федоров Н.А.",
+      "movement_date": "2024-02-05",
+      "reason": "Перевод между складами",
+      "notes": "",
+      "created_at": "2024-02-05T09:30:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 4,
+    "fields": {
+      "equipment": 2,
+      "from_location": "Офис 1",
+      "to_location": "Офис 2",
+      "responsible_person": "Петрова М.С.",
+      "movement_date": "2024-02-20",
+      "reason": "Перевод сотрудника в другой отдел",
+      "notes": "",
+      "created_at": "2024-02-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 5,
+    "fields": {
+      "equipment": 9,
+      "from_location": "Склад А",
+      "to_location": "Серверная",
+      "responsible_person": "Морозов В.Е.",
+      "movement_date": "2024-03-01",
+      "reason": "Ввод сервера в эксплуатацию",
+      "notes": "Настройка RAID и ПО завершена",
+      "created_at": "2024-03-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 6,
+    "fields": {
+      "equipment": 11,
+      "from_location": "Склад А",
+      "to_location": "Офис 1",
+      "responsible_person": "Иванов А.П.",
+      "movement_date": "2024-03-15",
+      "reason": "Комплектация рабочего места",
+      "notes": "",
+      "created_at": "2024-03-15T09:00:00Z"
+    }
+  },
+  {
+    "model": "movements.movement",
+    "pk": 7,
+    "fields": {
+      "equipment": 13,
+      "from_location": "Склад Б",
+      "to_location": "Офис 1",
+      "responsible_person": "Козлова Е.И.",
+      "movement_date": "2024-04-01",
+      "reason": "Установка телефонии",
+      "notes": "Настройка SIP-аккаунта",
+      "created_at": "2024-04-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "decommissions.decommission",
+    "pk": 1,
+    "fields": {
+      "equipment": 14,
+      "reason": "Физический износ. Модель снята с производства, запасные части недоступны.",
+      "decommission_date": "2024-01-20",
+      "approved_by": "Директор Сергеев П.И.",
+      "act_number": "АКТ-2024-001",
+      "notes": "Оборудование направлено на утилизацию",
+      "created_at": "2024-01-20T12:00:00Z"
+    }
+  },
+  {
+    "model": "decommissions.decommission",
+    "pk": 2,
+    "fields": {
+      "equipment": 17,
+      "reason": "Моральный износ. Замена на новое многофункциональное устройство.",
+      "decommission_date": "2024-02-10",
+      "approved_by": "Директор Сергеев П.И.",
+      "act_number": "АКТ-2024-002",
+      "notes": "МФУ передано на склад для последующей утилизации",
+      "created_at": "2024-02-10T11:00:00Z"
+    }
+  },
+  {
+    "model": "decommissions.decommission",
+    "pk": 3,
+    "fields": {
+      "equipment": 18,
+      "reason": "Неисправность платы форматирования. Ремонт экономически нецелесообразен.",
+      "decommission_date": "2024-03-05",
+      "approved_by": "Директор Ковалёв Н.С.",
+      "act_number": "АКТ-2024-003",
+      "notes": "",
+      "created_at": "2024-03-05T10:00:00Z"
+    }
+  }
+]

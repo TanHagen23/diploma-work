@@ -35,8 +35,8 @@ export default function DashboardPage() {
     <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Overview of warehouse assets and operations</p>
+          <h1 className="text-2xl font-semibold text-foreground">Главная</h1>
+          <p className="text-muted-foreground mt-1">Обзор складских активов и операций</p>
         </div>
 
         {loading ? (
@@ -55,7 +55,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Warehouse Health</CardTitle>
+                <CardTitle>Состояние склада</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {loading ? (
@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle>Быстрые действия</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <a

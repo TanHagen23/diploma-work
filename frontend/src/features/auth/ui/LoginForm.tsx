@@ -17,14 +17,14 @@ export function LoginForm() {
     e.preventDefault();
 
     if (!username || !password) {
-      toast.error('Please fill in all fields');
+      toast.error('Заполните все поля');
       return;
     }
 
     setIsLoading(true);
     try {
       await authStore.login(username, password);
-      toast.success('Login successful!');
+      toast.success('Вход выполнен!');
       navigate(ROUTES.DASHBOARD);
     } catch {
       toast.error('Неверный логин или пароль');
@@ -43,19 +43,19 @@ export function LoginForm() {
               <Box className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-xl font-semibold text-gray-900">AssetManager</h1>
-            <p className="text-sm text-gray-500 mt-1">Enterprise Resource Portal</p>
+            <p className="text-sm text-gray-500 mt-1">Портал управления ресурсами</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-                Email or Employee ID
+                Email или ID сотрудника
               </Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="e.g. name@company.com or 12345"
+                placeholder="например, name@company.com или 12345"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
@@ -66,20 +66,20 @@ export function LoginForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Password
+                  Пароль
                 </Label>
                 <button
                   type="button"
                   className="text-xs text-[#2E74B5] hover:underline"
                 >
-                  Forgot Password?
+                  Забыли пароль?
                 </button>
               </div>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder="Введите пароль"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10"
@@ -103,11 +103,11 @@ export function LoginForm() {
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Logging in...
+                  Вход...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Log In
+                  Войти
                   <ArrowRight className="h-4 w-4" />
                 </span>
               )}
@@ -115,12 +115,12 @@ export function LoginForm() {
           </form>
 
           <p className="text-center text-xs text-gray-400 mt-8">
-            Internal Corporate Asset Portal. Authorized Personnel Only.
+            Внутренний портал управления активами. Только для авторизованных сотрудников.
           </p>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-4">
-          © 2025 AssetManager. All rights reserved.
+          © 2025 AssetManager. Все права защищены.
         </p>
       </div>
     </div>

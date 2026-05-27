@@ -7,7 +7,6 @@ export const ROUTES = {
   MOVEMENTS: '/movements',
   DECOMMISSION: '/decommission',
   REPORTS: '/reports',
-  DIRECTORIES: '/directories',
   USERS: '/users',
   SETTINGS: '/settings',
 } as const;

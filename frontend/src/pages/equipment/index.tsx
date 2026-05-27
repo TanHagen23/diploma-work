@@ -134,9 +134,9 @@ export default function EquipmentPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Оборудование</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Инвентаризация оборудования</h1>
             <p className="text-muted-foreground mt-1">
-              Управление и учёт всех активов склада.
+              Управление и учёт складского оборудования.
             </p>
           </div>
           <Button

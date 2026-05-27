@@ -17,25 +17,25 @@ export default function SettingsPage() {
     <AppLayout>
       <div className="space-y-6 max-w-4xl">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Настройки</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your warehouse management system preferences.
+            Управление настройками системы управления складом.
           </p>
         </div>
 
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-              <CardDescription>Configure basic system settings</CardDescription>
+              <CardTitle>Общие настройки</CardTitle>
+              <CardDescription>Базовые настройки системы</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-2">
-                <Label htmlFor="company">Company Name</Label>
+                <Label htmlFor="company">Название организации</Label>
                 <Input id="company" defaultValue="Acme Warehouse Inc." />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="timezone">Timezone</Label>
+                <Label htmlFor="timezone">Часовой пояс</Label>
                 <Input id="timezone" defaultValue="America/New_York" />
               </div>
             </CardContent>
@@ -43,15 +43,15 @@ export default function SettingsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>Configure how you receive notifications</CardDescription>
+              <CardTitle>Уведомления</CardTitle>
+              <CardDescription>Настройка получения уведомлений</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Email Notifications</p>
+                  <p className="font-medium">Email-уведомления</p>
                   <p className="text-sm text-muted-foreground">
-                    Receive email alerts for important events
+                    Получать уведомления по email о важных событиях
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -59,9 +59,9 @@ export default function SettingsPage() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Low Stock Alerts</p>
+                  <p className="font-medium">Оповещения о низком запасе</p>
                   <p className="text-sm text-muted-foreground">
-                    Get notified when inventory is running low
+                    Уведомлять при снижении запасов
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -69,9 +69,9 @@ export default function SettingsPage() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Movement Alerts</p>
+                  <p className="font-medium">Оповещения о перемещениях</p>
                   <p className="text-sm text-muted-foreground">
-                    Get notified when equipment is moved
+                    Уведомлять при перемещении оборудования
                   </p>
                 </div>
                 <Switch />
@@ -81,15 +81,15 @@ export default function SettingsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Security</CardTitle>
-              <CardDescription>Manage your security preferences</CardDescription>
+              <CardTitle>Безопасность</CardTitle>
+              <CardDescription>Управление настройками безопасности</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Two-Factor Authentication</p>
+                  <p className="font-medium">Двухфакторная аутентификация</p>
                   <p className="text-sm text-muted-foreground">
-                    Add an extra layer of security to your account
+                    Дополнительный уровень защиты аккаунта
                   </p>
                 </div>
                 <Switch />
@@ -97,9 +97,9 @@ export default function SettingsPage() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Session Timeout</p>
+                  <p className="font-medium">Тайм-аут сессии</p>
                   <p className="text-sm text-muted-foreground">
-                    Automatically log out after 30 minutes of inactivity
+                    Автовыход через 30 минут неактивности
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -108,8 +108,8 @@ export default function SettingsPage() {
           </Card>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline">Cancel</Button>
-            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">Save Changes</Button>
+            <Button variant="outline">Отмена</Button>
+            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">Сохранить</Button>
           </div>
         </div>
       </div>

@@ -39,7 +39,7 @@ export function Header() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-[#94a3b8]" />
         <Input
           type="text"
-          placeholder="Search equipment, movements, or users..."
+          placeholder="Поиск оборудования, перемещений или пользователей..."
           className="pl-10 bg-gray-50 dark:bg-[#0f172a] border-gray-200 dark:border-[#334155] focus:bg-white dark:focus:bg-[#1e293b] dark:text-[#f1f5f9] dark:placeholder-[#94a3b8]"
         />
       </div>
@@ -65,8 +65,8 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-[#334155] cursor-pointer hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900 dark:text-[#f1f5f9]">Administrator</p>
-                <p className="text-xs text-gray-500 dark:text-[#94a3b8]">Super Admin</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-[#f1f5f9]">Администратор</p>
+                <p className="text-xs text-gray-500 dark:text-[#94a3b8]">Супер Администратор</p>
               </div>
               <Avatar className="h-9 w-9">
                 <AvatarFallback className="bg-[#2E74B5] text-white text-sm font-semibold">
@@ -85,11 +85,11 @@ export function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer gap-2">
               <User className="h-4 w-4" />
-              Profile
+              Профиль
             </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer gap-2">
               <Settings className="h-4 w-4" />
-              Settings
+              Настройки
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -97,7 +97,7 @@ export function Header() {
               className="cursor-pointer gap-2 text-red-600 focus:text-red-600 focus:bg-red-50"
             >
               <LogOut className="h-4 w-4" />
-              Logout
+              Выйти
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

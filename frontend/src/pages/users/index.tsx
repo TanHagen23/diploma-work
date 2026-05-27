@@ -41,13 +41,13 @@ export default function UsersPage() {
         {/* Row 1: Title + Add User button */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">User Directory</h1>
-            <p className="text-muted-foreground mt-1">Manage users and access permissions</p>
+            <h1 className="text-2xl font-semibold text-foreground">Каталог пользователей</h1>
+            <p className="text-muted-foreground mt-1">Управление пользователями и правами доступа</p>
           </div>
           {userRole === 'admin' && (
             <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] gap-2">
               <Plus className="w-4 h-4" />
-              Add User
+              Добавить пользователя
             </Button>
           )}
         </div>
@@ -57,7 +57,7 @@ export default function UsersPage() {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search by name, email, or department..."
+              placeholder="Поиск по имени, email или отделу..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -66,11 +66,11 @@ export default function UsersPage() {
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <Filter className="w-4 h-4" />
-              Filter
+              Фильтр
             </Button>
             <Button variant="outline" className="gap-2">
               <Download className="w-4 h-4" />
-              Export
+              Экспорт
             </Button>
           </div>
         </div>
@@ -89,12 +89,12 @@ export default function UsersPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead>User</TableHead>
+                      <TableHead>Пользователь</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Department</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>Отдел</TableHead>
+                      <TableHead>Роль</TableHead>
+                      <TableHead>Последний вход</TableHead>
+                      <TableHead className="text-right">Действия</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -121,10 +121,10 @@ export default function UsersPage() {
                         <TableCell>{user.lastLogin}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm">Edit</Button>
+                            <Button variant="ghost" size="sm">Изменить</Button>
                             {userRole === 'admin' && (
                               <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                                Delete
+                                Удалить
                               </Button>
                             )}
                           </div>
@@ -156,11 +156,11 @@ export default function UsersPage() {
                         <span>{user.email}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Department:</span>
+                        <span className="text-gray-500">Отдел:</span>
                         <span>{user.department}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Last Login:</span>
+                        <span className="text-gray-500">Последний вход:</span>
                         <span>{user.lastLogin}</span>
                       </div>
                     </div>
@@ -174,7 +174,7 @@ export default function UsersPage() {
         {/* Results count */}
         {!loading && filteredUsers.length > 0 && (
           <p className="text-sm text-gray-500 text-center">
-            Showing {filteredUsers.length} of {users.length} users
+            Показано {filteredUsers.length} из {users.length} пользователей
           </p>
         )}
       </div>

@@ -5,7 +5,6 @@ import {
   ArrowLeftRight,
   Trash2,
   BarChart3,
-  Database,
   Users,
   Settings,
   Menu,
@@ -26,17 +25,16 @@ import { useState } from 'react';
 import { cn } from '@/app/components/ui/utils';
 
 const mainNav = [
-  { name: 'Dashboard',       href: ROUTES.DASHBOARD,    icon: LayoutDashboard },
-  { name: 'Equipment',       href: ROUTES.EQUIPMENT,    icon: Box },
-  { name: 'Movements',       href: ROUTES.MOVEMENTS,    icon: ArrowLeftRight },
-  { name: 'Decommissioning', href: ROUTES.DECOMMISSION, icon: Trash2 },
-  { name: 'Reports',         href: ROUTES.REPORTS,      icon: BarChart3 },
+  { name: 'Главная',      href: ROUTES.DASHBOARD,    icon: LayoutDashboard },
+  { name: 'Оборудование', href: ROUTES.EQUIPMENT,    icon: Box },
+  { name: 'Перемещения',  href: ROUTES.MOVEMENTS,    icon: ArrowLeftRight },
+  { name: 'Списание',     href: ROUTES.DECOMMISSION, icon: Trash2 },
+  { name: 'Отчёты',       href: ROUTES.REPORTS,      icon: BarChart3 },
 ];
 
 const adminNav = [
-  { name: 'Users',          href: ROUTES.USERS,       icon: Users },
-  { name: 'Reference Data', href: ROUTES.DIRECTORIES, icon: Database },
-  { name: 'Settings',       href: ROUTES.SETTINGS,    icon: Settings },
+  { name: 'Пользователи', href: ROUTES.USERS,     icon: Users },
+  { name: 'Настройки',    href: ROUTES.SETTINGS,  icon: Settings },
 ];
 
 function NavItem({
@@ -102,7 +100,7 @@ function SidebarContent({
         {!collapsed && (
           <div className="flex flex-col">
             <span className="text-white font-semibold text-sm">AssetManager</span>
-            <span className="text-gray-300 text-xs">Warehouse Admin</span>
+            <span className="text-gray-300 text-xs">Администратор склада</span>
           </div>
         )}
       </div>
@@ -118,7 +116,7 @@ function SidebarContent({
           <div className={cn('pt-4 pb-2', collapsed ? 'px-2' : 'px-3')}>
             {!collapsed ? (
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Administration
+                Администрирование
               </span>
             ) : (
               <div className="w-full h-px bg-white/10" />

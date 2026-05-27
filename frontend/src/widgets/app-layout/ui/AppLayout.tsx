@@ -22,7 +22,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         <footer className="flex-shrink-0 px-6 py-3 border-t border-gray-100 dark:border-[#334155] bg-white dark:bg-[#1e293b]">
           <p className="text-xs text-gray-400 text-center">
-            © 2025 AssetManager WMS. All rights reserved.
+            © 2025 AssetManager WMS. Все права защищены.
           </p>
         </footer>
       </div>

@@ -19,7 +19,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run build
+          npm run build -- --base=/asset/
 
       - name: Copy Frontend to VPS
         uses: appleboy/scp-action@v0.1.7

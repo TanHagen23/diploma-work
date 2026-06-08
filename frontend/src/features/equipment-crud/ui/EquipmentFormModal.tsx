@@ -25,8 +25,8 @@ interface EquipmentFormModalProps {
   onSaved: (equipment: Equipment) => void;
 }
 
-const LOCATIONS = ['Склад А', 'Склад Б', 'Офис 1', 'Офис 2', 'Серверная'];
-const CATEGORIES = ['Техника', 'Оргтехника', 'Сетевое оборудование', 'Мебель'];
+const LOCATIONS = ['РЕТ (FR зона)', 'РЕТ (RU зона)', 'Сейл', 'Администрация', 'Охрана', 'Склад'];
+const CATEGORIES = ['ИТ-оборудование', 'Мебель', 'Бытовая техника', 'Оргтехника', 'Безопасность'];
 
 const EMPTY: EquipmentPayload = {
   name: '',

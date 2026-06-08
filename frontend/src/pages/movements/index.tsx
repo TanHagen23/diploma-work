@@ -30,7 +30,7 @@ import { Movement, Equipment } from '@/shared/types';
 import { Search, Plus, ArrowRightLeft, Package, Info } from 'lucide-react';
 import { toast } from 'sonner';
 
-const LOCATIONS = ['Склад А', 'Склад Б', 'Офис 1', 'Офис 2', 'Серверная'];
+const LOCATIONS = ['РЕТ (FR зона)', 'РЕТ (RU зона)', 'Сейл', 'Администрация', 'Охрана', 'Склад'];
 
 const EMPTY_FORM: CreateMovementPayload = {
   equipment: 0,

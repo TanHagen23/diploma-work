@@ -22,15 +22,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/ta
 import { Search, FileText, Download, DollarSign, Package, AlertTriangle, RotateCcw } from 'lucide-react';
 
 const inventoryReports = [
-  { id: 'АРТ-001', productName: 'Электропогрузчик C203', category: 'Техника', qty: 5, unitValue: '₽750 000', status: 'В наличии' },
-  { id: 'АРТ-002', productName: 'Dell Latitude E7', category: 'Электроника', qty: 3, unitValue: '₽72 000', status: 'Мало' },
-  { id: 'АРТ-003', productName: 'Промышленный принтер X2', category: 'Электроника', qty: 8, unitValue: '₽51 000', status: 'В наличии' },
-  { id: 'АРТ-004', productName: 'Набор ручных инструментов', category: 'Инструменты', qty: 15, unitValue: '₽15 000', status: 'В наличии' },
-  { id: 'АРТ-005', productName: 'Гидравлический подъёмник 300-DC', category: 'Техника', qty: 2, unitValue: '₽480 000', status: 'Мало' },
-  { id: 'АРТ-006', productName: 'Сканер Gen-4', category: 'Электроника', qty: 12, unitValue: '₽27 000', status: 'Дозаказ' },
+  { id: 'АРТ-001', productName: 'Электропогрузчик C203', category: 'Бытовая техника', qty: 5, unitValue: '₽750 000', status: 'В наличии' },
+  { id: 'АРТ-002', productName: 'Dell Latitude E7', category: 'ИТ-оборудование', qty: 3, unitValue: '₽72 000', status: 'Мало' },
+  { id: 'АРТ-003', productName: 'Промышленный принтер X2', category: 'Оргтехника', qty: 8, unitValue: '₽51 000', status: 'В наличии' },
+  { id: 'АРТ-004', productName: 'Рабочий стол (металл)', category: 'Мебель', qty: 15, unitValue: '₽15 000', status: 'В наличии' },
+  { id: 'АРТ-005', productName: 'Камера видеонаблюдения 300-DC', category: 'Безопасность', qty: 2, unitValue: '₽480 000', status: 'Мало' },
+  { id: 'АРТ-006', productName: 'Сканер Gen-4', category: 'Оргтехника', qty: 12, unitValue: '₽27 000', status: 'Дозаказ' },
 ];
 
-const equipmentCategories = ['Техника', 'Электроника', 'Инструменты'];
+const equipmentCategories = ['ИТ-оборудование', 'Мебель', 'Бытовая техника', 'Оргтехника', 'Безопасность'];
 
 const statusColors: Record<string, string> = {
   'В наличии': 'bg-emerald-100 text-emerald-700',
@@ -149,14 +149,17 @@ export default function ReportsPage() {
                 </SelectContent>
               </Select>
               <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Все склады" />
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Все локации" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Все склады</SelectItem>
-                  <SelectItem value="warehouse-a">Склад А</SelectItem>
-                  <SelectItem value="warehouse-b">Склад Б</SelectItem>
-                  <SelectItem value="building-a">Корпус А</SelectItem>
+                  <SelectItem value="all">Все локации</SelectItem>
+                  <SelectItem value="ret-fr">РЕТ (FR зона)</SelectItem>
+                  <SelectItem value="ret-ru">РЕТ (RU зона)</SelectItem>
+                  <SelectItem value="sale">Сейл</SelectItem>
+                  <SelectItem value="admin">Администрация</SelectItem>
+                  <SelectItem value="security">Охрана</SelectItem>
+                  <SelectItem value="warehouse">Склад</SelectItem>
                 </SelectContent>
               </Select>
               <div className="flex gap-2 ml-auto">

@@ -19,7 +19,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run build -- --base=/asset/
+          VITE_API_URL=http://94.199.19.7:84/api-asset npm run build -- --base=/asset/
 
       - name: Copy Frontend to VPS
         uses: appleboy/scp-action@v0.1.7

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Search, LogOut, User, Settings, Sun, Moon } from 'lucide-react';
 import {
   Button,
@@ -13,14 +13,39 @@ import {
   Input,
 } from '@/shared/ui';
 import { authStore } from '@/features/auth';
+import { userApi } from '@/entities/user';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/shared/config/routes';
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Администратор',
+  manager: 'Менеджер',
+  operator: 'Оператор',
+  viewer: 'Наблюдатель',
+};
 
 export function Header() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains('dark'),
   );
+
+  const [userName, setUserName] = useState(localStorage.getItem('user_name') ?? '');
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('user_email') ?? '');
+  const [role, setRole] = useState(authStore.getUserRole());
+  const roleLabel = ROLE_LABELS[role] ?? 'Наблюдатель';
+
+  useEffect(() => {
+    if (!authStore.isAuthenticated()) return;
+    userApi.me().then((user) => {
+      setUserName(user.fullName);
+      setUserEmail(user.email);
+      setRole(user.role as ReturnType<typeof authStore.getUserRole>);
+      localStorage.setItem('user_name', user.fullName);
+      localStorage.setItem('user_email', user.email);
+      localStorage.setItem('user_role', user.role);
+    }).catch(() => {});
+  }, []);
 
   const handleLogout = () => {
     authStore.logout();
@@ -65,12 +90,12 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-[#334155] cursor-pointer hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900 dark:text-[#f1f5f9]">Администратор</p>
-                <p className="text-xs text-gray-500 dark:text-[#94a3b8]">Супер Администратор</p>
+                <div className="text-sm font-medium text-foreground">{userName}</div>
+                <div className="text-xs text-muted-foreground">{roleLabel}</div>
               </div>
               <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-[#2E74B5] text-white text-sm font-semibold">
-                  AR
+                <AvatarFallback className="bg-[#2E74B5] text-white">
+                  <User size={16} className="text-white" />
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -78,8 +103,8 @@ export function Header() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="font-medium">Alex Rivera</span>
-                <span className="text-xs text-gray-500 font-normal">alex.rivera@company.com</span>
+                <span className="font-medium">{userName}</span>
+                <span className="text-xs text-gray-500 font-normal">{userEmail}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

@@ -22,6 +22,9 @@ export const authApi = {
     if (user_id) {
       const { data: user } = await axiosInstance.get(`/users/${user_id}/`);
       localStorage.setItem('user_role', user.role ?? 'viewer');
+      const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username;
+      localStorage.setItem('user_name', fullName);
+      localStorage.setItem('user_email', user.email ?? '');
     }
 
     return data;
@@ -31,5 +34,7 @@ export const authApi = {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
     localStorage.removeItem('user_role');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_email');
   },
 };

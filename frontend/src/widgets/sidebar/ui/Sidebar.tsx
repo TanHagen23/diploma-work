@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink, Link } from 'react-router';
 import {
   LayoutDashboard,
   Box,
@@ -88,9 +88,10 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full bg-[#1a1f2e]">
       {/* Logo */}
-      <div
+      <Link
+        to={ROUTES.DASHBOARD}
         className={cn(
-          'flex items-center gap-2 px-4 py-5 border-b border-white/10',
+          'flex items-center gap-2 px-4 py-5 border-b border-white/10 hover:opacity-80 transition-opacity',
           collapsed && 'justify-center px-2',
         )}
       >
@@ -98,12 +99,9 @@ function SidebarContent({
           <Box className="h-5 w-5 text-white" />
         </div>
         {!collapsed && (
-          <div className="flex flex-col">
-            <span className="text-white font-semibold text-sm">AssetManager</span>
-            <span className="text-gray-300 text-xs">Администратор склада</span>
-          </div>
+          <span className="text-white font-semibold text-sm">AssetManager</span>
         )}
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">

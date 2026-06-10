@@ -1,7 +1,7 @@
-import { TableCell, TableRow, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/ui';
+import { TableCell, TableRow } from '@/shared/ui';
 import { Equipment } from '@/shared/types';
 import { EquipmentBadge } from './EquipmentBadge';
-import { Package, MoreHorizontal, Edit, Trash2, ArrowRightLeft } from 'lucide-react';
+import { Package, Edit, Trash2, ArrowLeftRight } from 'lucide-react';
 
 interface EquipmentRowProps {
   equipment: Equipment;
@@ -31,30 +31,29 @@ export function EquipmentRow({ equipment, onSelect, onEdit, onDelete }: Equipmen
         <EquipmentBadge status={equipment.status} />
       </TableCell>
       <TableCell className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onSelect?.(equipment)}>
-              <ArrowRightLeft className="h-4 w-4 mr-2" />
-              Переместить
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit?.(equipment)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Редактировать
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-500/10"
-              onClick={() => onDelete?.(equipment)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Удалить
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex justify-end gap-1">
+          <button
+            title="Переместить"
+            onClick={() => onSelect?.(equipment)}
+            className="p-2 text-muted-foreground hover:bg-slate-100 hover:text-slate-700 rounded-lg transition-colors"
+          >
+            <ArrowLeftRight size={16} />
+          </button>
+          <button
+            title="Редактировать"
+            onClick={() => onEdit?.(equipment)}
+            className="p-2 text-muted-foreground hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            title="Удалить"
+            onClick={() => onDelete?.(equipment)}
+            className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </TableCell>
     </TableRow>
   );

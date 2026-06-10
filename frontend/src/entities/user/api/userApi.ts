@@ -40,4 +40,9 @@ export const userApi = {
     const { data } = await axiosInstance.get<DjangoUser>(`/users/${id}/`);
     return mapUser(data);
   },
+
+  me: async (): Promise<User> => {
+    const { data } = await axiosInstance.get<DjangoUser>('/users/me/');
+    return mapUser(data);
+  },
 };

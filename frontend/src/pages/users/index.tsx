@@ -1,16 +1,28 @@
-import { useState, useEffect } from 'react';
-import { AppLayout } from '@/widgets/app-layout';
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Input, Skeleton, Avatar, AvatarFallback } from '@/shared/ui';
-import { User } from '@/shared/types';
-import { UserRoleBadge, userApi } from '@/entities/user';
-import { Plus, Search, Download, Filter } from 'lucide-react';
-import { useIsDesktop } from '@/shared/hooks/useMediaQuery';
-import { authStore } from '@/features/auth';
+import { useState, useEffect } from "react";
+import { AppLayout } from "@/widgets/app-layout";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Input,
+  Skeleton,
+  Avatar,
+  AvatarFallback,
+} from "@/shared/ui";
+import { User } from "@/shared/types";
+import { UserRoleBadge, userApi } from "@/entities/user";
+import { Plus, Search, Download, Filter, Edit, Trash2 } from "lucide-react";
+import { useIsDesktop } from "@/shared/hooks/useMediaQuery";
+import { authStore } from "@/features/auth";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const isDesktop = useIsDesktop();
   const userRole = authStore.getUserRole();
 
@@ -20,7 +32,7 @@ export default function UsersPage() {
         const data = await userApi.getAll();
         setUsers(data);
       } catch (error) {
-        console.error('Failed to fetch users:', error);
+        console.error("Failed to fetch users:", error);
       } finally {
         setLoading(false);
       }
@@ -29,10 +41,11 @@ export default function UsersPage() {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user =>
-    user.fullName.toLowerCase().includes(search.toLowerCase()) ||
-    user.email.toLowerCase().includes(search.toLowerCase()) ||
-    user.department.toLowerCase().includes(search.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase()) ||
+      user.department.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -41,10 +54,14 @@ export default function UsersPage() {
         {/* Row 1: Title + Add User button */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Каталог пользователей</h1>
-            <p className="text-muted-foreground mt-1">Управление пользователями и правами доступа</p>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Каталог пользователей
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Управление пользователями и правами доступа
+            </p>
           </div>
-          {userRole === 'admin' && (
+          {userRole === "admin" && (
             <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] gap-2">
               <Plus className="w-4 h-4" />
               Добавить пользователя
@@ -104,12 +121,17 @@ export default function UsersPage() {
                           <div className="flex items-center gap-3">
                             <Avatar>
                               <AvatarFallback className="bg-[#2E74B5] text-white">
-                                {user.fullName.split(' ').map(n => n[0]).join('')}
+                                {user.fullName
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
                               </AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="font-medium">{user.fullName}</p>
-                              <p className="text-sm text-gray-500">@{user.login}</p>
+                              <p className="text-sm text-gray-500">
+                                @{user.login}
+                              </p>
                             </div>
                           </div>
                         </TableCell>
@@ -120,13 +142,21 @@ export default function UsersPage() {
                         </TableCell>
                         <TableCell>{user.lastLogin}</TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm">Изменить</Button>
-                            {userRole === 'admin' && (
-                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                                Удалить
-                              </Button>
-                            )}
+                          <div className="flex justify-end gap-1">
+                            <button
+                              title="Редактировать"
+                              className="p-2 text-muted-foreground hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            {userRole === "admin" && (
+                              <button
+                                title="Удалить"
+                                className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                              )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -137,11 +167,17 @@ export default function UsersPage() {
             ) : (
               <div className="space-y-4">
                 {filteredUsers.map((user) => (
-                  <div key={user.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div
+                    key={user.id}
+                    className="bg-white rounded-lg border border-gray-200 p-4"
+                  >
                     <div className="flex items-start gap-3 mb-3">
                       <Avatar>
                         <AvatarFallback className="bg-[#2E74B5] text-white">
-                          {user.fullName.split(' ').map(n => n[0]).join('')}
+                          {user.fullName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">

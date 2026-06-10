@@ -1,69 +1,43 @@
+import axiosInstance from '@/shared/api/axiosInstance';
 import { User } from '@/shared/types';
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    fullName: 'John Doe',
-    login: 'john.doe',
-    email: 'john@figma.com',
-    role: 'admin',
-    department: 'IT',
-    lastLogin: '2024-03-14',
-  },
-  {
-    id: 2,
-    fullName: 'Jane Smith',
-    login: 'jane.smith',
-    email: 'jane.smith@figma.com',
-    role: 'operator',
-    department: 'Warehouse',
-    lastLogin: '2024-03-15',
-  },
-  {
-    id: 3,
-    fullName: 'Robert Brown',
-    login: 'robert.brown',
-    email: 'robert.b@figma.com',
-    role: 'viewer',
-    department: 'Logistics',
-    lastLogin: '2024-03-13',
-  },
-  {
-    id: 4,
-    fullName: 'Emily Johnson',
-    login: 'emily.j',
-    email: 'emily.johnson@figma.com',
-    role: 'operator',
-    department: 'Maintenance',
-    lastLogin: '2024-03-14',
-  },
-  {
-    id: 5,
-    fullName: 'Michael Wilson',
-    login: 'michael.w',
-    email: 'm.wilson@figma.com',
-    role: 'admin',
-    department: 'IT',
-    lastLogin: '2024-03-15',
-  },
-];
+interface DjangoUser {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+  date_joined: string;
+  last_login: string | null;
+  profile: {
+    role: string;
+    department: string;
+    phone: string;
+  } | null;
+}
+
+function mapUser(raw: DjangoUser): User {
+  const fullName = [raw.first_name, raw.last_name].filter(Boolean).join(' ') || raw.username;
+  return {
+    id: raw.id,
+    fullName,
+    login: raw.username,
+    email: raw.email,
+    role: (raw.profile?.role ?? 'viewer') as User['role'],
+    department: raw.profile?.department ?? '',
+    lastLogin: raw.last_login ?? raw.date_joined,
+  };
+}
 
 export const userApi = {
   getAll: async (): Promise<User[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockUsers), 500);
-    });
+    const { data } = await axiosInstance.get<DjangoUser[]>('/users/');
+    return data.map(mapUser);
   },
 
-  getById: async (id: number): Promise<User | undefined> => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockUsers.find((u) => u.id === id)), 300);
-    });
-  },
-
-  getCurrentUser: async (): Promise<User> => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockUsers[0]), 300);
-    });
+  getById: async (id: number): Promise<User> => {
+    const { data } = await axiosInstance.get<DjangoUser>(`/users/${id}/`);
+    return mapUser(data);
   },
 };

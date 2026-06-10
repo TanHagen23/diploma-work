@@ -1,4 +1,6 @@
 from rest_framework import viewsets, filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
@@ -12,6 +14,11 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = ['is_active']
     ordering_fields = ['username', 'date_joined']
     ordering = ['username']
+
+    @action(detail=False, methods=['get'], url_path='me')
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):

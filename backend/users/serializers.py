@@ -11,7 +11,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
+    role = serializers.SerializerMethodField()
+
+    def get_role(self, obj):
+        if obj.is_superuser:
+            return 'admin'
+        profile = getattr(obj, 'profile', None)
+        return profile.role if profile else 'viewer'
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'date_joined', 'last_login', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'date_joined', 'last_login', 'role', 'profile']

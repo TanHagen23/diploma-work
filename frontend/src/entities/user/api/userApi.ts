@@ -10,8 +10,8 @@ interface DjangoUser {
   is_active: boolean;
   date_joined: string;
   last_login: string | null;
+  role: string;
   profile: {
-    role: string;
     department: string;
     phone: string;
   } | null;
@@ -24,7 +24,7 @@ function mapUser(raw: DjangoUser): User {
     fullName,
     login: raw.username,
     email: raw.email,
-    role: (raw.profile?.role ?? 'viewer') as User['role'],
+    role: raw.role as User['role'],
     department: raw.profile?.department ?? '',
     lastLogin: raw.last_login ?? raw.date_joined,
   };

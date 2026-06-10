@@ -21,7 +21,7 @@ export const authApi = {
     const { user_id } = decodeJwtPayload(data.access);
     if (user_id) {
       const { data: user } = await axiosInstance.get(`/users/${user_id}/`);
-      localStorage.setItem('user_role', user.profile?.role ?? 'viewer');
+      localStorage.setItem('user_role', user.role ?? 'viewer');
     }
 
     return data;

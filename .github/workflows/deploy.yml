@@ -51,4 +51,5 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             pip install -r requirements.txt --break-system-packages
+            python manage.py migrate --no-input
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart assetmanager

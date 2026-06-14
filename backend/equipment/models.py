@@ -10,10 +10,10 @@ class Equipment(models.Model):
 
     name = models.CharField(max_length=255, verbose_name='Наименование')
     inventory_number = models.CharField(max_length=100, unique=True, verbose_name='Инвентарный номер')
-    category = models.CharField(max_length=100, verbose_name='Категория')
+    category = models.CharField(max_length=100, blank=True, verbose_name='Категория')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active', verbose_name='Статус')
     location = models.CharField(max_length=255, verbose_name='Местонахождение')
-    responsible_person = models.CharField(max_length=255, verbose_name='Ответственное лицо')
+    responsible_person = models.CharField(max_length=255, blank=True, verbose_name='Ответственное лицо')
     purchase_date = models.DateField(null=True, blank=True, verbose_name='Дата приобретения')
     purchase_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name='Стоимость')
     notes = models.TextField(blank=True, verbose_name='Примечания')

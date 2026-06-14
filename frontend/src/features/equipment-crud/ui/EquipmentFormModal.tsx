@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
   Button,
   Input,
@@ -44,6 +45,7 @@ export function EquipmentFormModal({ open, onOpenChange, equipment, onSaved }: E
   const isEdit = !!equipment;
   const [form, setForm] = useState<EquipmentPayload>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (equipment) {
@@ -61,14 +63,19 @@ export function EquipmentFormModal({ open, onOpenChange, equipment, onSaved }: E
     } else {
       setForm(EMPTY);
     }
+    setSubmitted(false);
   }, [equipment, open]);
 
   const set = <K extends keyof EquipmentPayload>(key: K, value: EquipmentPayload[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  const err = (field: 'name' | 'inventory_number' | 'location') =>
+    submitted && !form[field];
+
   const handleSubmit = async () => {
-    if (!form.name.trim() || !form.inventory_number.trim()) {
-      toast.error('Заполните обязательные поля: Наименование и Инвентарный номер');
+    if (!form.name.trim() || !form.inventory_number.trim() || !form.location) {
+      setSubmitted(true);
+      toast.error('Заполните обязательные поля: Наименование, Инвентарный номер и Местонахождение');
       return;
     }
 
@@ -105,26 +112,60 @@ export function EquipmentFormModal({ open, onOpenChange, equipment, onSaved }: E
       <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Редактировать оборудование' : 'Добавить оборудование'}</DialogTitle>
+          <DialogDescription>Заполните поля и нажмите сохранить</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
+            {/* Row 1: Наименование (full width) */}
             <div className="col-span-2 space-y-1.5">
               <Label>Наименование <span className="text-red-500">*</span></Label>
               <Input
                 value={form.name}
                 onChange={(e) => set('name', e.target.value)}
                 placeholder="Dell Latitude 7490"
+                className={err('name') ? 'border-red-500 focus-visible:ring-red-500' : ''}
               />
             </div>
 
+            {/* Row 2: Инвентарный номер | Местонахождение */}
             <div className="space-y-1.5">
               <Label>Инвентарный номер <span className="text-red-500">*</span></Label>
               <Input
                 value={form.inventory_number}
                 onChange={(e) => set('inventory_number', e.target.value)}
                 placeholder="INV-001"
+                className={err('inventory_number') ? 'border-red-500 focus-visible:ring-red-500' : ''}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Местонахождение <span className="text-red-500">*</span></Label>
+              <Select value={form.location} onValueChange={(v) => set('location', v)}>
+                <SelectTrigger className={err('location') ? 'border-red-500 focus:ring-red-500' : ''}>
+                  <SelectValue placeholder="Выберите локацию" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOCATIONS.map((l) => (
+                    <SelectItem key={l} value={l}>{l}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Row 3: Статус | Категория */}
+            <div className="space-y-1.5">
+              <Label>Статус</Label>
+              <Select value={form.status} onValueChange={(v) => set('status', v as EquipmentStatus)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Активно</SelectItem>
+                  <SelectItem value="maintenance">На обслуживании</SelectItem>
+                  <SelectItem value="decommissioned">Списано</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
@@ -141,34 +182,7 @@ export function EquipmentFormModal({ open, onOpenChange, equipment, onSaved }: E
               </Select>
             </div>
 
-            <div className="space-y-1.5">
-              <Label>Статус</Label>
-              <Select value={form.status} onValueChange={(v) => set('status', v as EquipmentStatus)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Активно</SelectItem>
-                  <SelectItem value="maintenance">На обслуживании</SelectItem>
-                  <SelectItem value="decommissioned">Списано</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Местонахождение</Label>
-              <Select value={form.location} onValueChange={(v) => set('location', v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите локацию" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LOCATIONS.map((l) => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
+            {/* Row 4: Ответственное лицо */}
             <div className="col-span-2 space-y-1.5">
               <Label>Ответственное лицо</Label>
               <Input
@@ -178,6 +192,7 @@ export function EquipmentFormModal({ open, onOpenChange, equipment, onSaved }: E
               />
             </div>
 
+            {/* Row 5: Дата | Стоимость */}
             <div className="space-y-1.5">
               <Label>Дата приобретения</Label>
               <Input
@@ -198,6 +213,7 @@ export function EquipmentFormModal({ open, onOpenChange, equipment, onSaved }: E
               />
             </div>
 
+            {/* Row 6: Примечания */}
             <div className="col-span-2 space-y-1.5">
               <Label>Примечания</Label>
               <Input

@@ -7,21 +7,14 @@ import {
   BarChart3,
   Users,
   Settings,
-  Menu,
 } from 'lucide-react';
 import { ROUTES } from '@/shared/config/routes';
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  Button,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/shared/ui';
-import { useIsMobile } from '@/shared/hooks/useMediaQuery';
-import { useState } from 'react';
 import { cn } from '@/app/components/ui/utils';
 
 const mainNav = [
@@ -90,6 +83,7 @@ function SidebarContent({
       {/* Logo */}
       <Link
         to={ROUTES.DASHBOARD}
+        onClick={onClick}
         className={cn(
           'flex items-center gap-2 px-4 py-5 border-b border-white/10 hover:opacity-80 transition-opacity',
           collapsed && 'justify-center px-2',
@@ -126,44 +120,15 @@ function SidebarContent({
           ))}
         </TooltipProvider>
       </nav>
-
     </div>
   );
 }
 
-export function Sidebar() {
-  const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
+interface SidebarProps {
+  onNavigate?: () => void;
+  collapsed?: boolean;
+}
 
-  if (isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="fixed top-4 left-4 z-50 bg-[#1a1f2e] text-white hover:bg-[#1a1f2e]/80"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-64 border-none bg-[#1a1f2e]">
-          <SidebarContent onClick={() => setOpen(false)} />
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  return (
-    <>
-      {/* Tablet collapsed */}
-      <aside className="hidden md:flex lg:hidden w-16 flex-shrink-0">
-        <SidebarContent collapsed />
-      </aside>
-      {/* Desktop full */}
-      <aside className="hidden lg:flex w-60 flex-shrink-0">
-        <SidebarContent />
-      </aside>
-    </>
-  );
+export function Sidebar({ onNavigate, collapsed = false }: SidebarProps) {
+  return <SidebarContent collapsed={collapsed} onClick={onNavigate} />;
 }

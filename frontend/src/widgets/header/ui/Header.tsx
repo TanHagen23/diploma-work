@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, Search, LogOut, User, Settings, Sun, Moon } from 'lucide-react';
+import { Bell, Search, LogOut, User, Settings, Sun, Moon, Menu } from 'lucide-react';
 import {
   Button,
   DropdownMenu,
@@ -24,7 +24,11 @@ const ROLE_LABELS: Record<string, string> = {
   viewer: 'Наблюдатель',
 };
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains('dark'),
@@ -58,9 +62,20 @@ export function Header() {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#1e293b] border-b border-gray-100 dark:border-[#334155]">
+    <header className="flex items-center gap-3 px-4 lg:px-6 py-4 bg-white dark:bg-[#1e293b] border-b border-gray-100 dark:border-[#334155]">
+      {/* Mobile menu trigger */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onMenuClick}
+        className="lg:hidden flex-shrink-0 text-gray-500 dark:text-[#94a3b8] hover:text-gray-700 dark:hover:text-[#f1f5f9]"
+        aria-label="Открыть меню"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
       {/* Search */}
-      <div className="relative w-full max-w-md ml-0 md:ml-4 lg:ml-0">
+      <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-[#94a3b8]" />
         <Input
           type="text"

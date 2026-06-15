@@ -59,4 +59,7 @@ export const decommissionsApi = {
     axiosInstance
       .post<RawDecommission>('/decommissions/', data)
       .then((r) => toDecommission(r.data)),
+
+  deleteDecommission: (id: number): Promise<void> =>
+    axiosInstance.delete(`/decommissions/${id}/`).then(() => undefined),
 };

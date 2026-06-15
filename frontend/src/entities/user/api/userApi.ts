@@ -45,4 +45,23 @@ export const userApi = {
     const { data } = await axiosInstance.get<DjangoUser>('/users/me/');
     return mapUser(data);
   },
+
+  update: async (id: number, payload: { fullName?: string; email?: string; department?: string; role?: string }): Promise<User> => {
+    const { fullName, department, ...rest } = payload;
+    const parts = fullName?.trim().split(' ') ?? [];
+    const body: Record<string, unknown> = { ...rest };
+    if (fullName !== undefined) {
+      body.first_name = parts[0] ?? '';
+      body.last_name = parts.slice(1).join(' ');
+    }
+    if (department !== undefined) {
+      body.profile = { department };
+    }
+    const { data } = await axiosInstance.patch<DjangoUser>(`/users/${id}/`, body);
+    return mapUser(data);
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await axiosInstance.delete(`/users/${id}/`);
+  },
 };

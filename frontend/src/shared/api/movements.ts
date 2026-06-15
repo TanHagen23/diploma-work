@@ -63,4 +63,7 @@ export const movementsApi = {
 
   createMovement: (data: CreateMovementPayload): Promise<Movement> =>
     axiosInstance.post<RawMovement>('/movements/', data).then((r) => toMovement(r.data)),
+
+  deleteMovement: (id: number): Promise<void> =>
+    axiosInstance.delete(`/movements/${id}/`).then(() => undefined),
 };

@@ -26,11 +26,19 @@ import {
   DialogTitle,
   DialogTrigger,
   Skeleton,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/shared/ui';
 import { decommissionsApi, CreateDecommissionPayload } from '@/shared/api/decommissions';
 import { equipmentApi } from '@/shared/api/equipment';
 import { Decommission, Equipment } from '@/shared/types';
-import { Search, Plus, CheckCircle, AlertTriangle, Package, FileX } from 'lucide-react';
+import { Search, Plus, CheckCircle, AlertTriangle, Package, FileX, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const EMPTY_FORM: CreateDecommissionPayload = {
@@ -50,12 +58,13 @@ export default function DecommissionPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateDecommissionPayload>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Decommission | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     Promise.all([decommissionsApi.getDecommissions(), equipmentApi.getEquipment()])
       .then(([decs, eqs]) => {
         setDecommissions(decs);
-        // Only active/maintenance equipment can be decommissioned
         const decommissionedIds = new Set(decs.map((d) => d.equipmentId));
         setEquipmentList(eqs.filter((e) => !decommissionedIds.has(e.id)));
       })
@@ -92,6 +101,21 @@ export default function DecommissionPage() {
       toast.error(msg);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await decommissionsApi.deleteDecommission(deleteTarget.id);
+      setDecommissions((prev) => prev.filter((d) => d.id !== deleteTarget.id));
+      toast.success('Акт удалён');
+    } catch {
+      toast.error('Ошибка при удалении');
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -276,12 +300,13 @@ export default function DecommissionPage() {
                     <TableHead>Дата</TableHead>
                     <TableHead>Причина</TableHead>
                     <TableHead>Утверждено</TableHead>
+                    <TableHead className="text-right">Действия</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <td colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                      <td colSpan={8} className="py-10 text-center text-sm text-muted-foreground">
                         Записей о списании не найдено
                       </td>
                     </TableRow>
@@ -306,6 +331,15 @@ export default function DecommissionPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">{item.approvedBy}</TableCell>
+                      <TableCell className="text-right">
+                        <button
+                          title="Удалить"
+                          onClick={() => setDeleteTarget(item)}
+                          className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -314,6 +348,27 @@ export default function DecommissionPage() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить акт о списании?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Акт «{deleteTarget?.actNumber}» будет удалён безвозвратно.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+            >
+              {deleting ? 'Удаление...' : 'Удалить'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }

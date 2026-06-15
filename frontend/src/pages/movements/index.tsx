@@ -23,11 +23,19 @@ import {
   DialogTitle,
   DialogTrigger,
   Skeleton,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/shared/ui';
 import { movementsApi, CreateMovementPayload } from '@/shared/api/movements';
 import { equipmentApi } from '@/shared/api/equipment';
 import { Movement, Equipment } from '@/shared/types';
-import { Search, Plus, ArrowRightLeft, Package, Info } from 'lucide-react';
+import { Search, Plus, ArrowRightLeft, Package, Info, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const LOCATIONS = ['РЕТ (FR зона)', 'РЕТ (RU зона)', 'Сейл', 'Администрация', 'Охрана', 'Склад'];
@@ -51,6 +59,8 @@ export default function MovementsPage() {
   const [form, setForm] = useState<CreateMovementPayload>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteTarget, setDeleteTarget] = useState<Movement | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
@@ -91,6 +101,21 @@ export default function MovementsPage() {
       toast.error('Ошибка при сохранении');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await movementsApi.deleteMovement(deleteTarget.id);
+      setMovements((prev) => prev.filter((m) => m.id !== deleteTarget.id));
+      toast.success('Перемещение удалено');
+    } catch {
+      toast.error('Ошибка при удалении');
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -252,12 +277,13 @@ export default function MovementsPage() {
                   <TableHead>Дата</TableHead>
                   <TableHead>Ответственный</TableHead>
                   <TableHead>Причина</TableHead>
+                  <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginated.length === 0 ? (
                   <TableRow>
-                    <td colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                    <td colSpan={8} className="py-10 text-center text-sm text-muted-foreground">
                       Перемещений не найдено
                     </td>
                   </TableRow>
@@ -282,6 +308,15 @@ export default function MovementsPage() {
                       <Badge variant="secondary" className="bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 text-xs">
                         {movement.reason}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <button
+                        title="Удалить"
+                        onClick={() => setDeleteTarget(movement)}
+                        className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -310,6 +345,27 @@ export default function MovementsPage() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить запись о перемещении?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Запись о перемещении «{deleteTarget?.equipmentName}» будет удалена безвозвратно.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+            >
+              {deleting ? 'Удаление...' : 'Удалить'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }

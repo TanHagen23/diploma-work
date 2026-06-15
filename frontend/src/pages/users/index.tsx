@@ -9,15 +9,42 @@ import {
   TableHeader,
   TableRow,
   Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Skeleton,
   Avatar,
   AvatarFallback,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/shared/ui";
 import { User } from "@/shared/types";
 import { UserRoleBadge, userApi } from "@/entities/user";
 import { Plus, Search, Download, Filter, Edit, Trash2 } from "lucide-react";
 import { useIsDesktop } from "@/shared/hooks/useMediaQuery";
 import { authStore } from "@/features/auth";
+import { toast } from "sonner";
+
+interface EditForm {
+  fullName: string;
+  email: string;
+  department: string;
+  role: string;
+}
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,6 +52,13 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const isDesktop = useIsDesktop();
   const userRole = authStore.getUserRole();
+
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const [editTarget, setEditTarget] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({ fullName: "", email: "", department: "", role: "" });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -47,6 +81,41 @@ export default function UsersPage() {
       user.email.toLowerCase().includes(search.toLowerCase()) ||
       user.department.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const openEdit = (user: User) => {
+    setEditTarget(user);
+    setEditForm({ fullName: user.fullName, email: user.email, department: user.department, role: user.role });
+  };
+
+  const handleEditSave = async () => {
+    if (!editTarget) return;
+    setSaving(true);
+    try {
+      const updated = await userApi.update(editTarget.id, editForm);
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      setEditTarget(null);
+      toast.success("Пользователь обновлён");
+    } catch {
+      toast.error("Ошибка при сохранении");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await userApi.delete(deleteTarget.id);
+      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+      toast.success("Пользователь удалён");
+    } catch {
+      toast.error("Ошибка при удалении");
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
     <AppLayout>
@@ -142,22 +211,24 @@ export default function UsersPage() {
                         </TableCell>
                         <TableCell>{user.lastLogin}</TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <button
-                              title="Редактировать"
-                              className="p-2 text-muted-foreground hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                            >
-                              <Edit size={16} />
-                            </button>
-                            {userRole === "admin" && (
+                          {userRole === "admin" && (
+                            <div className="flex justify-end gap-1">
+                              <button
+                                title="Редактировать"
+                                onClick={() => openEdit(user)}
+                                className="p-2 text-muted-foreground hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                              >
+                                <Edit size={16} />
+                              </button>
                               <button
                                 title="Удалить"
+                                onClick={() => setDeleteTarget(user)}
                                 className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
                               >
                                 <Trash2 size={16} />
                               </button>
-                              )}
-                          </div>
+                            </div>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -200,6 +271,22 @@ export default function UsersPage() {
                         <span>{user.lastLogin}</span>
                       </div>
                     </div>
+                    {userRole === "admin" && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t">
+                        <button
+                          onClick={() => openEdit(user)}
+                          className="flex-1 p-2 text-sm text-muted-foreground hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Edit size={14} /> Изменить
+                        </button>
+                        <button
+                          onClick={() => setDeleteTarget(user)}
+                          className="flex-1 p-2 text-sm text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Trash2 size={14} /> Удалить
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -214,6 +301,89 @@ export default function UsersPage() {
           </p>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle>Редактировать пользователя</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Полное имя</Label>
+              <Input
+                value={editForm.fullName}
+                onChange={(e) => setEditForm((f) => ({ ...f, fullName: e.target.value }))}
+                placeholder="Иванов Иван Иванович"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="user@example.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Отдел</Label>
+              <Input
+                value={editForm.department}
+                onChange={(e) => setEditForm((f) => ({ ...f, department: e.target.value }))}
+                placeholder="ИТ отдел"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Роль</Label>
+              <Select value={editForm.role} onValueChange={(v) => setEditForm((f) => ({ ...f, role: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите роль" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Администратор</SelectItem>
+                  <SelectItem value="operator">Оператор</SelectItem>
+                  <SelectItem value="viewer">Наблюдатель</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTarget(null)} disabled={saving}>
+              Отмена
+            </Button>
+            <Button
+              className="bg-[#2563eb] hover:bg-[#1d4ed8]"
+              onClick={handleEditSave}
+              disabled={saving}
+            >
+              {saving ? "Сохранение..." : "Сохранить"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete AlertDialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить пользователя?</AlertDialogTitle>
+            <AlertDialogDescription>
+              «{deleteTarget?.fullName}» будет удалён безвозвратно.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+            >
+              {deleting ? "Удаление..." : "Удалить"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/widgets/app-layout';
 import {
   Button,
@@ -11,8 +12,41 @@ import {
   CardTitle,
 } from '@/shared/ui';
 import { Switch } from '@/app/components/ui/switch';
+import { userApi } from '@/entities/user';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
+  const [userId, setUserId] = useState<number | null>(null);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [department, setDepartment] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    userApi.me().then((user) => {
+      setUserId(user.id);
+      setFullName(user.fullName);
+      setEmail(user.email);
+      setDepartment(user.department);
+    }).catch(() => {
+      toast.error('Не удалось загрузить профиль');
+    }).finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    if (!userId) return;
+    setSaving(true);
+    try {
+      await userApi.update(userId, { fullName, email, department });
+      toast.success('Настройки сохранены');
+    } catch {
+      toast.error('Ошибка при сохранении');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6 max-w-4xl">
@@ -26,17 +60,37 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Общие настройки</CardTitle>
-              <CardDescription>Базовые настройки системы</CardDescription>
+              <CardTitle>Профиль пользователя</CardTitle>
+              <CardDescription>Личные данные учётной записи</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-2">
-                <Label htmlFor="company">Название организации</Label>
-                <Input id="company" defaultValue="Acme Warehouse Inc." />
+                <Label htmlFor="fullName">Полное имя</Label>
+                <Input
+                  id="fullName"
+                  value={loading ? '' : fullName}
+                  disabled={loading}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="timezone">Часовой пояс</Label>
-                <Input id="timezone" defaultValue="America/New_York" />
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={loading ? '' : email}
+                  disabled={loading}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="department">Отдел / Должность</Label>
+                <Input
+                  id="department"
+                  value={loading ? '' : department}
+                  disabled={loading}
+                  onChange={(e) => setDepartment(e.target.value)}
+                />
               </div>
             </CardContent>
           </Card>
@@ -108,8 +162,16 @@ export default function SettingsPage() {
           </Card>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline">Отмена</Button>
-            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">Сохранить</Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Отмена
+            </Button>
+            <Button
+              className="bg-[#2563eb] hover:bg-[#1d4ed8]"
+              onClick={handleSave}
+              disabled={saving || loading}
+            >
+              {saving ? 'Сохранение…' : 'Сохранить'}
+            </Button>
           </div>
         </div>
       </div>

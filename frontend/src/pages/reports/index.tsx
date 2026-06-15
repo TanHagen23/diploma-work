@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/widgets/app-layout';
 import {
   Button,
@@ -20,36 +20,104 @@ import {
 } from '@/shared/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Search, FileText, Download, DollarSign, Package, AlertTriangle, RotateCcw } from 'lucide-react';
+import { equipmentApi } from '@/entities/equipment';
+import { movementsApi } from '@/shared/api/movements';
+import { decommissionsApi } from '@/shared/api/decommissions';
+import type { Equipment, Movement, Decommission } from '@/shared/types';
+import * as XLSX from 'xlsx';
 
-const inventoryReports = [
-  { id: 'АРТ-001', productName: 'Электропогрузчик C203', category: 'Бытовая техника', qty: 5, unitValue: '₽750 000', status: 'В наличии' },
-  { id: 'АРТ-002', productName: 'Dell Latitude E7', category: 'ИТ-оборудование', qty: 3, unitValue: '₽72 000', status: 'Мало' },
-  { id: 'АРТ-003', productName: 'Промышленный принтер X2', category: 'Оргтехника', qty: 8, unitValue: '₽51 000', status: 'В наличии' },
-  { id: 'АРТ-004', productName: 'Рабочий стол (металл)', category: 'Мебель', qty: 15, unitValue: '₽15 000', status: 'В наличии' },
-  { id: 'АРТ-005', productName: 'Камера видеонаблюдения 300-DC', category: 'Безопасность', qty: 2, unitValue: '₽480 000', status: 'Мало' },
-  { id: 'АРТ-006', productName: 'Сканер Gen-4', category: 'Оргтехника', qty: 12, unitValue: '₽27 000', status: 'Дозаказ' },
-];
-
-const equipmentCategories = ['ИТ-оборудование', 'Мебель', 'Бытовая техника', 'Оргтехника', 'Безопасность'];
-
-const statusColors: Record<string, string> = {
-  'В наличии': 'bg-emerald-100 text-emerald-700',
-  'Мало': 'bg-amber-100 text-amber-700',
-  'Дозаказ': 'bg-blue-100 text-blue-700',
+const STATUS_LABELS: Record<string, string> = {
+  active: 'В наличии',
+  maintenance: 'На обслуживании',
+  decommissioned: 'Списано',
 };
 
+const statusColors: Record<string, string> = {
+  active: 'bg-emerald-100 text-emerald-700',
+  maintenance: 'bg-amber-100 text-amber-700',
+  decommissioned: 'bg-red-100 text-red-700',
+};
+
+function exportToXlsx(rows: Record<string, unknown>[], filename: string) {
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Данные');
+  XLSX.writeFile(wb, `${filename}.xlsx`);
+}
+
 export default function ReportsPage() {
+  const [activeTab, setActiveTab] = useState('current');
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [movements, setMovements] = useState<Movement[]>([]);
+  const [decommissions, setDecommissions] = useState<Decommission[]>([]);
+  const [loadingEq, setLoadingEq] = useState(true);
+  const [loadingMv, setLoadingMv] = useState(true);
+  const [loadingDc, setLoadingDc] = useState(true);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
-  const filteredItems = inventoryReports.filter((item) => {
-    const matchesSearch = item.productName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+  useEffect(() => {
+    equipmentApi.getAll().then(setEquipment).finally(() => setLoadingEq(false));
+    movementsApi.getMovements().then(setMovements).finally(() => setLoadingMv(false));
+    decommissionsApi.getDecommissions().then(setDecommissions).finally(() => setLoadingDc(false));
+  }, []);
+
+  const categories = [...new Set(equipment.map((e) => e.type))].filter(Boolean);
+
+  const filteredEquipment = equipment.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.serialNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || item.type === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
-  const totalItems = inventoryReports.reduce((sum, item) => sum + item.qty, 0);
-  const lowStockCount = inventoryReports.filter((item) => item.status === 'Мало').length;
+  const lowStockCount = equipment.filter((e) => e.status === 'maintenance').length;
+
+  const handleExport = () => {
+    if (activeTab === 'current') {
+      exportToXlsx(
+        filteredEquipment.map((e) => ({
+          'Инв. номер': e.serialNumber,
+          'Наименование': e.name,
+          'Категория': e.type,
+          'Статус': STATUS_LABELS[e.status] ?? e.status,
+          'Локация': e.location,
+          'Ответственный': e.responsiblePerson ?? '',
+          'Стоимость': e.purchasePrice ?? '',
+        })),
+        'equipment',
+      );
+    } else if (activeTab === 'movement') {
+      exportToXlsx(
+        movements.map((m) => ({
+          'ID': m.id,
+          'Оборудование': m.equipmentName,
+          'Откуда': m.from,
+          'Куда': m.to,
+          'Дата': m.date,
+          'Оператор': m.operator,
+          'Причина': m.reason,
+          'Примечания': m.notes,
+        })),
+        'movements',
+      );
+    } else {
+      exportToXlsx(
+        decommissions.map((d) => ({
+          'ID': d.id,
+          'Оборудование': d.equipment.name,
+          'Дата списания': d.decommissionDate,
+          'Причина': d.reason,
+          'Утверждено': d.approvedBy,
+          'Акт №': d.actNumber,
+          'Примечания': d.notes,
+        })),
+        'decommissions',
+      );
+    }
+  };
 
   return (
     <AppLayout>
@@ -63,7 +131,7 @@ export default function ReportsPage() {
               <FileText className="h-4 w-4 mr-2" />
               Экспорт PDF
             </Button>
-            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">
+            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]" onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Экспорт Excel
             </Button>
@@ -79,8 +147,8 @@ export default function ReportsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Активные позиции</p>
-                  <p className="text-2xl font-bold">{totalItems.toLocaleString()}</p>
-                  <p className="text-xs text-blue-600">+8.5% с прошлого месяца</p>
+                  <p className="text-2xl font-bold">{loadingEq ? '…' : equipment.length}</p>
+                  <p className="text-xs text-blue-600">Всего единиц оборудования</p>
                 </div>
               </div>
             </CardContent>
@@ -93,8 +161,8 @@ export default function ReportsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Категорий</p>
-                  <p className="text-2xl font-bold">{equipmentCategories.length}</p>
-                  <p className="text-xs text-emerald-600">+2.5% с прошлого месяца</p>
+                  <p className="text-2xl font-bold">{loadingEq ? '…' : categories.length}</p>
+                  <p className="text-xs text-emerald-600">Уникальных категорий</p>
                 </div>
               </div>
             </CardContent>
@@ -106,8 +174,8 @@ export default function ReportsPage() {
                   <AlertTriangle className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Мало на складе</p>
-                  <p className="text-2xl font-bold">{lowStockCount}</p>
+                  <p className="text-sm text-muted-foreground">На обслуживании</p>
+                  <p className="text-2xl font-bold">{loadingEq ? '…' : lowStockCount}</p>
                   <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs mt-1">
                     Требует внимания
                   </Badge>
@@ -117,57 +185,45 @@ export default function ReportsPage() {
           </Card>
         </div>
 
-        <Tabs defaultValue="current" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="current">Текущий запас</TabsTrigger>
             <TabsTrigger value="movement">История перемещений</TabsTrigger>
             <TabsTrigger value="decommissioned">Списанные</TabsTrigger>
           </TabsList>
 
+          {/* ── Current stock ── */}
           <TabsContent value="current" className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Артикул или название"
+                  placeholder="Инв. номер или название"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Все категории" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Все категории</SelectItem>
-                  {equipmentCategories.map((cat) => (
+                  {categories.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Все локации" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все локации</SelectItem>
-                  <SelectItem value="ret-fr">РЕТ (FR зона)</SelectItem>
-                  <SelectItem value="ret-ru">РЕТ (RU зона)</SelectItem>
-                  <SelectItem value="sale">Сейл</SelectItem>
-                  <SelectItem value="admin">Администрация</SelectItem>
-                  <SelectItem value="security">Охрана</SelectItem>
-                  <SelectItem value="warehouse">Склад</SelectItem>
-                </SelectContent>
-              </Select>
               <div className="flex gap-2 ml-auto">
-                <Button variant="outline" size="sm" onClick={() => { setSearchQuery(''); setCategoryFilter('all'); }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setSearchQuery(''); setCategoryFilter('all'); }}
+                >
                   Сбросить
-                </Button>
-                <Button size="sm" className="bg-[#2563eb] hover:bg-[#1d4ed8]">
-                  Применить
                 </Button>
               </div>
             </div>
@@ -176,72 +232,159 @@ export default function ReportsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead>Артикул</TableHead>
+                    <TableHead>Инв. номер</TableHead>
                     <TableHead>Наименование</TableHead>
                     <TableHead>Категория</TableHead>
-                    <TableHead className="text-right">Кол-во</TableHead>
-                    <TableHead className="text-right">Стоимость</TableHead>
+                    <TableHead>Локация</TableHead>
+                    <TableHead>Ответственный</TableHead>
                     <TableHead>Статус</TableHead>
-                    <TableHead>Действие</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredItems.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-muted/30">
-                      <TableCell className="font-mono text-sm text-blue-600">{item.id}</TableCell>
-                      <TableCell className="font-medium">{item.productName}</TableCell>
-                      <TableCell className="text-muted-foreground">{item.category}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {item.qty} шт.
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {item.unitValue}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className={statusColors[item.status]}>
-                          {item.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="link" size="sm" className="text-blue-600 p-0 h-auto">
-                          Подробнее
-                        </Button>
+                  {loadingEq ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        Загрузка…
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : filteredEquipment.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        Нет данных
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredEquipment.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-muted/30">
+                        <TableCell className="font-mono text-sm text-blue-600">
+                          {item.serialNumber}
+                        </TableCell>
+                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{item.type}</TableCell>
+                        <TableCell className="text-muted-foreground">{item.location}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {item.responsiblePerson ?? '—'}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className={statusColors[item.status] ?? 'bg-gray-100 text-gray-700'}
+                          >
+                            {STATUS_LABELS[item.status] ?? item.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
-              <div className="flex items-center justify-between px-4 py-3 border-t">
-                <p className="text-sm text-muted-foreground">
-                  Показано 1 — {filteredItems.length} из {inventoryReports.length}
-                </p>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((page) => (
-                    <Button
-                      key={page}
-                      variant={page === 1 ? 'default' : 'outline'}
-                      size="sm"
-                      className={page === 1 ? 'bg-[#2563eb]' : ''}
-                    >
-                      {page}
-                    </Button>
-                  ))}
+              {!loadingEq && (
+                <div className="px-4 py-3 border-t text-sm text-muted-foreground">
+                  Показано {filteredEquipment.length} из {equipment.length}
                 </div>
-              </div>
+              )}
             </div>
           </TabsContent>
 
-          <TabsContent value="movement">
-            <div className="border rounded-lg bg-card p-8 text-center text-muted-foreground">
-              <RotateCcw className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <p>История перемещений будет отображена здесь.</p>
+          {/* ── Movement history ── */}
+          <TabsContent value="movement" className="space-y-4">
+            <div className="border rounded-lg bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead>Оборудование</TableHead>
+                    <TableHead>Откуда</TableHead>
+                    <TableHead>Куда</TableHead>
+                    <TableHead>Дата</TableHead>
+                    <TableHead>Оператор</TableHead>
+                    <TableHead>Причина</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingMv ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        Загрузка…
+                      </TableCell>
+                    </TableRow>
+                  ) : movements.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        <RotateCcw className="h-10 w-10 mx-auto mb-2 text-muted-foreground/50" />
+                        <p className="text-muted-foreground">История перемещений пуста</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    movements.map((m) => (
+                      <TableRow key={m.id} className="hover:bg-muted/30">
+                        <TableCell className="font-medium">{m.equipmentName}</TableCell>
+                        <TableCell className="text-muted-foreground">{m.from}</TableCell>
+                        <TableCell className="text-muted-foreground">{m.to}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(m.date).toLocaleDateString('ru-RU')}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{m.operator}</TableCell>
+                        <TableCell className="text-muted-foreground">{m.reason}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              {!loadingMv && movements.length > 0 && (
+                <div className="px-4 py-3 border-t text-sm text-muted-foreground">
+                  Всего записей: {movements.length}
+                </div>
+              )}
             </div>
           </TabsContent>
 
-          <TabsContent value="decommissioned">
-            <div className="border rounded-lg bg-card p-8 text-center text-muted-foreground">
-              <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <p>Списанные позиции будут отображены здесь.</p>
+          {/* ── Decommissioned ── */}
+          <TabsContent value="decommissioned" className="space-y-4">
+            <div className="border rounded-lg bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead>Оборудование</TableHead>
+                    <TableHead>Дата списания</TableHead>
+                    <TableHead>Причина</TableHead>
+                    <TableHead>Утверждено</TableHead>
+                    <TableHead>Акт №</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingDc ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                        Загрузка…
+                      </TableCell>
+                    </TableRow>
+                  ) : decommissions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8">
+                        <AlertTriangle className="h-10 w-10 mx-auto mb-2 text-muted-foreground/50" />
+                        <p className="text-muted-foreground">Списанных позиций нет</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    decommissions.map((d) => (
+                      <TableRow key={d.id} className="hover:bg-muted/30">
+                        <TableCell className="font-medium">{d.equipment.name}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(d.decommissionDate).toLocaleDateString('ru-RU')}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{d.reason}</TableCell>
+                        <TableCell className="text-muted-foreground">{d.approvedBy}</TableCell>
+                        <TableCell className="text-muted-foreground">{d.actNumber}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              {!loadingDc && decommissions.length > 0 && (
+                <div className="px-4 py-3 border-t text-sm text-muted-foreground">
+                  Всего записей: {decommissions.length}
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

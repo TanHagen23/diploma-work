@@ -62,7 +62,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="flex items-center gap-3 px-4 lg:px-6 py-4 bg-white dark:bg-[#1e293b] border-b border-gray-100 dark:border-[#334155]">
+    <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#1e293b] border-b border-gray-100 dark:border-[#334155]">
       {/* Mobile menu trigger */}
       <Button
         variant="ghost"
@@ -96,9 +96,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative text-gray-500 dark:text-[#94a3b8] hover:text-gray-700 dark:hover:text-[#f1f5f9]">
+        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-[#94a3b8] hover:text-gray-700 dark:hover:text-[#f1f5f9]">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
         </Button>
 
         <DropdownMenu>

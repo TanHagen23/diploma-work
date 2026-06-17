@@ -1,5 +1,5 @@
 export type EquipmentStatus = 'active' | 'maintenance' | 'decommissioned';
-export type UserRole = 'admin' | 'operator' | 'viewer';
+export type UserRole = 'admin' | 'manager' | 'viewer';
 
 export interface Equipment {
   id: number;

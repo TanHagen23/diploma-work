@@ -46,6 +46,16 @@ interface EditForm {
   role: string;
 }
 
+interface AddForm {
+  fullName: string;
+  email: string;
+  password: string;
+  department: string;
+  role: string;
+}
+
+const EMPTY_ADD_FORM: AddForm = { fullName: '', email: '', password: '', department: '', role: 'viewer' };
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,8 +66,13 @@ export default function UsersPage() {
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState<AddForm>(EMPTY_ADD_FORM);
+  const [addSaving, setAddSaving] = useState(false);
+
   const [editTarget, setEditTarget] = useState<User | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({ fullName: "", email: "", department: "", role: "" });
+  const [editPassword, setEditPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -82,18 +97,39 @@ export default function UsersPage() {
       user.department.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const handleAddSave = async () => {
+    if (!addForm.fullName.trim() || !addForm.email.trim() || !addForm.password.trim()) return;
+    setAddSaving(true);
+    try {
+      const created = await userApi.create(addForm);
+      setUsers((prev) => [...prev, created]);
+      setAddOpen(false);
+      setAddForm(EMPTY_ADD_FORM);
+      toast.success("Пользователь добавлен");
+    } catch {
+      toast.error("Ошибка при создании пользователя");
+    } finally {
+      setAddSaving(false);
+    }
+  };
+
   const openEdit = (user: User) => {
     setEditTarget(user);
     setEditForm({ fullName: user.fullName, email: user.email, department: user.department, role: user.role });
+    setEditPassword("");
   };
 
   const handleEditSave = async () => {
     if (!editTarget) return;
     setSaving(true);
     try {
-      const updated = await userApi.update(editTarget.id, editForm);
+      const payload = editPassword.trim()
+        ? { ...editForm, password: editPassword.trim() }
+        : editForm;
+      const updated = await userApi.update(editTarget.id, payload);
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
       setEditTarget(null);
+      setEditPassword("");
       toast.success("Пользователь обновлён");
     } catch {
       toast.error("Ошибка при сохранении");
@@ -131,7 +167,7 @@ export default function UsersPage() {
             </p>
           </div>
           {userRole === "admin" && (
-            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] gap-2">
+            <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] gap-2" onClick={() => setAddOpen(true)}>
               <Plus className="w-4 h-4" />
               Добавить пользователя
             </Button>
@@ -302,6 +338,76 @@ export default function UsersPage() {
         )}
       </div>
 
+      {/* Add User Dialog */}
+      <Dialog open={addOpen} onOpenChange={(o) => { if (!o) { setAddOpen(false); setAddForm(EMPTY_ADD_FORM); } }}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle>Добавить пользователя</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Имя пользователя <span className="text-red-500">*</span></Label>
+              <Input
+                value={addForm.fullName}
+                onChange={(e) => setAddForm((f) => ({ ...f, fullName: e.target.value }))}
+                placeholder="Иванов Иван Иванович"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email <span className="text-red-500">*</span></Label>
+              <Input
+                type="email"
+                value={addForm.email}
+                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="user@example.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Пароль <span className="text-red-500">*</span></Label>
+              <Input
+                type="password"
+                value={addForm.password}
+                onChange={(e) => setAddForm((f) => ({ ...f, password: e.target.value }))}
+                placeholder="Минимум 8 символов"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Отдел</Label>
+              <Input
+                value={addForm.department}
+                onChange={(e) => setAddForm((f) => ({ ...f, department: e.target.value }))}
+                placeholder="ИТ отдел"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Роль</Label>
+              <Select value={addForm.role} onValueChange={(v) => setAddForm((f) => ({ ...f, role: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите роль" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Администратор</SelectItem>
+                  <SelectItem value="manager">Менеджер</SelectItem>
+                  <SelectItem value="viewer">Наблюдатель</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAddOpen(false); setAddForm(EMPTY_ADD_FORM); }} disabled={addSaving}>
+              Отмена
+            </Button>
+            <Button
+              className="bg-[#2563eb] hover:bg-[#1d4ed8]"
+              onClick={handleAddSave}
+              disabled={addSaving || !addForm.fullName.trim() || !addForm.email.trim() || !addForm.password.trim()}
+            >
+              {addSaving ? "Сохранение..." : "Добавить"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Dialog */}
       <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
         <DialogContent className="sm:max-w-[440px]">
@@ -342,14 +448,25 @@ export default function UsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Администратор</SelectItem>
-                  <SelectItem value="operator">Оператор</SelectItem>
+                  <SelectItem value="manager">Менеджер</SelectItem>
                   <SelectItem value="viewer">Наблюдатель</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            {userRole === "admin" && (
+              <div className="space-y-1.5">
+                <Label>Новый пароль</Label>
+                <Input
+                  type="password"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  placeholder="Оставьте пустым чтобы не менять"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditTarget(null)} disabled={saving}>
+            <Button variant="outline" onClick={() => { setEditTarget(null); setEditPassword(""); }} disabled={saving}>
               Отмена
             </Button>
             <Button

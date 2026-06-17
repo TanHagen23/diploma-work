@@ -46,7 +46,7 @@ export const userApi = {
     return mapUser(data);
   },
 
-  update: async (id: number, payload: { fullName?: string; email?: string; department?: string; role?: string }): Promise<User> => {
+  update: async (id: number, payload: { fullName?: string; email?: string; password?: string; department?: string; role?: string }): Promise<User> => {
     const { fullName, department, ...rest } = payload;
     const parts = fullName?.trim().split(' ') ?? [];
     const body: Record<string, unknown> = { ...rest };
@@ -58,6 +58,21 @@ export const userApi = {
       body.profile = { department };
     }
     const { data } = await axiosInstance.patch<DjangoUser>(`/users/${id}/`, body);
+    return mapUser(data);
+  },
+
+  create: async (payload: { fullName: string; email: string; password: string; department?: string; role: string }): Promise<User> => {
+    const parts = payload.fullName.trim().split(' ');
+    const body = {
+      username: payload.email.split('@')[0],
+      email: payload.email,
+      password: payload.password,
+      first_name: parts[0] ?? '',
+      last_name: parts.slice(1).join(' '),
+      role: payload.role,
+      profile: { department: payload.department ?? '' },
+    };
+    const { data } = await axiosInstance.post<DjangoUser>('/users/', body);
     return mapUser(data);
   },
 
